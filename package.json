@@ -7,8 +7,8 @@
     "packages/*"
   ],
   "devDependencies": {
-    "prettier": "3.9.9",
-    "turbo": "2.10.12"
+    "turbo": "2.10.12",
+    "prettier": "3.9.9"
   },
   "scripts": {
     "dev": "turbo run dev",
@@ -20,5 +20,8 @@
     "typecheck": "turbo run typecheck",
     "format": "prettier --write . && sh scripts/format-swift.sh",
     "format:check": "prettier --check . && sh scripts/format-swift.sh --check"
+  },
+  "overrides": {
+    "react-native": "0.88.0-rc.2"
   }
 }

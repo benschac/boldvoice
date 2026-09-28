@@ -42,7 +42,8 @@
     "lint": "expo lint",
     "dev": "expo start",
     "build": "expo export --platform web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "ios:build": "expo prebuild --platform ios && expo run:ios"
   },
   "private": true
 }
