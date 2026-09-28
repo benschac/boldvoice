@@ -75,10 +75,12 @@ struct StudyTimerWidget: Widget {
       } compactTrailing: {
         elapsed(context.state)
           .font(.caption2.monospacedDigit())
+          .multilineTextAlignment(.trailing)
           .frame(width: 64, alignment: .trailing)
       } minimal: {
         elapsed(context.state)
           .font(.system(size: 9, design: .monospaced))
+          .multilineTextAlignment(.center)
           .frame(width: 34)
       }
       .keylineTint(accent)
