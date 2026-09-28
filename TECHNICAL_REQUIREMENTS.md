@@ -1,12 +1,12 @@
 # Study timer: technical design
 
-Status: proposed implementation, 2026-09-28. [REQUIREMENTS.md](REQUIREMENTS.md) is authoritative. [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) defines delivery order and contains the embedded architecture, data relationship, lifecycle, and stack diagrams.
+Status: implementation started; acceptance gates remain unverified, 2026-09-28. [REQUIREMENTS.md](REQUIREMENTS.md) is authoritative. [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) defines delivery order and contains the embedded architecture, data relationship, lifecycle, and stack diagrams.
 
-## Repository baseline
+## Repository baseline at implementation start
 
-The workspace contains an Expo Router starter at the repository root, using Bun. `package.json` requests Expo `~58.0.0-preview.7`; `bun.lock` resolves Expo `58.0.0-preview.8`, `expo-modules-core` `58.0.8`, and React Native `0.88.0-rc.2`. There is no study timer, local native module, or widget extension yet. The `ios` script builds and launches the native app; `dev` starts Metro. No Git remote is configured at planning time.
+The workspace contains an Expo Router starter at the repository root, using Bun. `package.json` requests Expo `~58.0.0-preview.7`; `bun.lock` resolves Expo `58.0.0-preview.8`, `expo-modules-core` `58.0.8`, and React Native `0.88.0-rc.2`. At implementation start there was no study timer, local native module, or widget extension. Current verification is recorded in [the acceptance log](docs/acceptance/study-timer.md). The `ios` script builds and launches the native app; `dev` starts Metro. Verified local stack: `main → chore/project-skills → docs/study-timer-plan`. No Git remote is configured; this implementation run must not publish or merge.
 
-Known baseline defects, fixed in D1 before any native work:
+Baseline defects recorded during planning, to recheck and fix in D1 before native work:
 
 - `bunx expo-doctor` fails: multiple copies of `expo`, `expo-constants`, `expo-font`, `expo-glass-effect`, `expo-linking`, `@expo/dom-webview`, and `@expo/log-box` are installed. The installed tree also contains React Native `0.88.0-rc.1` alongside `rc.2`, and `expo-modules-core` declares a `react-native-worklets` peer range (`^0.7`–`^0.10`) that excludes the app's `0.13.0`.
 - `app.json` has no `ios.bundleIdentifier`, so `expo run:ios` would prompt interactively and the extension has no parent identifier to derive from.
@@ -21,7 +21,7 @@ The bridge is an [inline Expo module](https://docs.expo.dev/modules/inline-modul
 - A Swift file is registered as a module only if its text matches `func definition() -> …ModuleDefinition`. The JS name is the file name: `StudyTimerModule.swift` is loaded with `requireNativeModule('StudyTimerModule')`.
 - Watched folders cannot be `./`, cannot contain spaces or parentheses, and cannot be nested inside another watched folder.
 
-Prefer Expo Modules 2.0 Swift macros (`@ExpoModule`, `@JS`) for the module body. A macro-only module does not contain the text that discovery looks for, so it would not be registered. The macro documentation says its synthesized members are merged into the module's definition, so the plan is `@ExpoModule` with `@JS` methods plus an empty `func definition() -> ModuleDefinition { ModuleDefinition {} }` for discovery. D1 proves this registers and that an async `@JS` call crosses the bridge. If it fails, record the exact failure and use the DSL (`AsyncFunction`) inside `definition()` behind the same TypeScript interface. Generated TypeScript is still upcoming work in the [Expo Modules 2.0 announcement](https://expo.dev/blog/an-early-look-at-expo-modules-2-0), so the contract stays hand-written.
+D1 tested Expo Modules 2.0 Swift macros (`@ExpoModule`, `@JS`). The app target could not load ExpoModulesMacros, so the implementation uses the planned DSL fallback. The same TypeScript contract successfully invoked AsyncFunction methods on the simulator. Original spike rationale follows. A macro-only module does not contain the text that discovery looks for, so it would not be registered. The macro documentation says its synthesized members are merged into the module's definition, so the plan is `@ExpoModule` with `@JS` methods plus an empty `func definition() -> ModuleDefinition {}` for discovery. D1 proves this registers and that an async `@JS` call crosses the bridge. If it fails, record the exact failure and use the DSL (`AsyncFunction`) inside `definition()` behind the same TypeScript interface. Generated TypeScript is still upcoming work in the [Expo Modules 2.0 announcement](https://expo.dev/blog/an-early-look-at-expo-modules-2-0), so the contract stays hand-written.
 
 The Live Activity is a WidgetKit extension, not an Expo native view. No Android implementation, backend, push updates, account system, session history, or lock-screen action buttons are required. Web and Android entry points should show an unsupported-feature message without loading an iOS-only binding.
 
@@ -43,7 +43,7 @@ Platform behavior:
 - **Timer text width:** system timer text reserves space for its widest value, which can clip in compact and minimal Island regions. Give it explicit frames there and verify with long-duration fixtures.
 - **Minimal presentation:** iOS shows the minimal view only when more than one app has an active Live Activity. The planned trigger is a concurrent activity from another app (for example, a Clock timer, to be verified on the simulator). If it cannot be reproduced, show previews and leave that acceptance item explicitly open.
 - **Eight-hour limit:** iOS ends a Live Activity after about eight hours active. The app timer keeps running; foreground reconciliation reports the activity as missing and offers retry.
-- **Update latency:** the 1–2 second target is measured, not assumed. Record the simulator with `xcrun simctl io booted recordVideo` and step through frames around Pause and Resume.
+- **Update latency:** the 1–2 second target is measured, not assumed. Use Argent recording only after its simulator trial passes, with removal of still portions disabled; otherwise use `xcrun simctl io <selected-device-id> recordVideo`. Preserve the full real-time recording and step through frames around Pause and Resume. Record tool settings and frame/time references; an edited demo cannot prove latency.
 - **Clock changes:** elapsed time uses the wall clock, matching the date-based system timer. Manual clock jumps are a documented limitation; negative deltas are clamped to zero.
 - **Deployment targets:** the app uses the SDK's supported minimum; the extension targets at least iOS 16.2 (`ActivityContent`, `request(attributes:content:pushType:)`). Local toolchain at planning time: Xcode 26.6. Use a Dynamic Island simulator for acceptance.
 
@@ -90,9 +90,9 @@ Running elapsed is `accumulatedMs + max(0, nowMs - runningSinceMs)`; paused elap
 
 For the widget, derive an effective start date as `runningSinceMs - accumulatedMs`. Render time with `Text(timerInterval: effectiveStart...farFuture, pauseTime: pausedAt, countsDown: false)`, where paused content sets `pauseTime` to freeze the value. Render the running goal ring with `ProgressView(timerInterval: effectiveStart...effectiveStart + goal, countsDown: false)` and a static `ProgressView(value:)` while paused. If the timer-driven ring does not advance in the extension, show a labeled snapshot ring updated at transitions instead.
 
-## Proposed TypeScript contract
+## TypeScript contract
 
-This is an API specification, not code already implemented:
+The implementation lives in `src/features/study-timer/study-timer.types.ts`; the iOS facade loads the DSL module:
 
 ```ts
 type ActivityStatus = "active" | "unavailable" | "missing";
@@ -145,15 +145,15 @@ The store is a native Foundation file, `Application Support/StudyTimer/session.j
 
 Each transition makes one write, and the write is the commit point:
 
-- **Start:** reconcile (end every activity of this type), validate, write the running snapshot, then request the activity. If the request throws, the timer still runs with `ACTIVITY_UNAVAILABLE`.
+- **Start:** validate the name and reject an existing session before mutation; reconcile idle state by ending activities of this type, write the running snapshot, then request the activity. If the request throws, the timer still runs with `ACTIVITY_UNAVAILABLE`.
 - **Pause / Resume:** write the new snapshot, then update the matching activity's content.
 - **Stop:** delete the snapshot, then end every activity of this type with immediate dismissal. Deleting first means a crash between the two steps leaves only an orphan activity, which the next reconciliation ends.
 
 Reconciliation runs in `getSession` (launch and foreground) and at the start of every Start:
 
-1. Load the snapshot. Missing file means idle. Invalid JSON or an unsupported schema means discard: end all activities of this type, delete the file, and return idle with `SESSION_DISCARDED`. An I/O read failure rejects with `PERSISTENCE_FAILED` and deletes nothing.
-2. End every nonterminal activity of `StudyTimerAttributes` whose session ID does not match the stored session. Never touch other attributes types.
-3. If a matching nonterminal activity exists, adopt it (`active`). Otherwise report `missing`, or `unavailable` if Live Activities are disabled. Never recreate automatically: an absent activity may have been dismissed by the user. `retryActivity` reconciles, then requests only if no match exists.
+1. Load the snapshot. Missing file means idle. Invalid JSON or an unsupported schema means discard: end all activities of this type, delete the file, and return idle with `SESSION_DISCARDED`, or prioritize `ACTIVITY_CLEANUP_UNCONFIRMED` if an activity survives the cleanup observation. An I/O read failure rejects with `PERSISTENCE_FAILED` and deletes nothing.
+2. Keep at most one matching nonterminal activity of `StudyTimerAttributes`; end orphan activities and duplicate matches. Never touch other attributes types.
+3. If a matching nonterminal activity exists, adopt it (`active`) and update its content from the stored snapshot. This recovers a crash after a Pause/Resume write but before its ActivityKit update. Otherwise report `missing`, or `unavailable` if Live Activities are disabled. Never recreate automatically: an absent activity may have been dismissed by the user. `retryActivity` reconciles, then requests only if no match exists.
 
 ## ActivityKit observation boundary
 

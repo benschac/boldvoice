@@ -44,9 +44,13 @@
     "dev": "expo start",
     "build": "expo export --platform web",
     "typecheck": "tsc --noEmit",
+    "ios:build": "expo prebuild --platform ios && expo run:ios",
     "format": "prettier --write . && sh scripts/format-swift.sh",
     "format:check": "prettier --check . && sh scripts/format-swift.sh --check"
   },
   "private": true,
-  "packageManager": "bun@1.4.0"
+  "packageManager": "bun@1.4.0",
+  "overrides": {
+    "react-native": "0.88.0-rc.2"
+  }
 }

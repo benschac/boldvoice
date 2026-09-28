@@ -1,6 +1,6 @@
 # Study timer implementation plan and Graphite stack
 
-Status: planned, 2026-09-28. This deliverable decomposes [REQUIREMENTS.md](REQUIREMENTS.md); it does not claim the native module is built. Read [TECHNICAL_REQUIREMENTS.md](TECHNICAL_REQUIREMENTS.md) for the contract and the documented assumptions. Architecture, data relationships, lifecycle, and stack diagrams are embedded below.
+Status: implementation started, 2026-09-28. This deliverable decomposes [REQUIREMENTS.md](REQUIREMENTS.md); it does not claim the native module is built. Read [TECHNICAL_REQUIREMENTS.md](TECHNICAL_REQUIREMENTS.md) for the contract and the documented assumptions. Architecture, data relationships, lifecycle, and stack diagrams are embedded below.
 
 ## Delivery principle
 
@@ -62,7 +62,21 @@ The installed pstack skills support the existing D1 → D2 → D3 workflow; they
 - `poteto-mode`, broad swarms, model tuning, and automatic shipping remain opt-in. Installing skills does not activate these workflows or authorize external messages, publication, or merging. Existing explicit Git/Graphite authorization still governs stack operations.
 - After D1 establishes working native build and simulator commands, consider a project-local verification skill only if it makes the proven acceptance steps repeatable. Base it on commands and outcomes actually verified; do not make generating another skill a prerequisite for D1 or claim automation replaces the human demo.
 
-No additional installation or global model setup is required to implement this plan under these overrides.
+No additional pstack installation or global model setup is required under these overrides.
+
+## Argent verification trial
+
+Use a bounded Argent trial after the first native build launches. Its purpose is to make simulator acceptance repeatable across D1–D3. This plan update does not install Argent, register its MCP server, or establish compatibility with this app. Record setup and trial results before relying on it.
+
+1. Review the [installation options](https://docs.swmansion.com/argent/docs/fundamentals/installation/) before setup. The initializer can add MCP configuration, skills, rules, and agent definitions. Keep any adopted tooling changes scoped and preserve this project's pstack overrides. Record the Argent version and required recording tools, including `ffmpeg`.
+2. The lead retains sole ownership of native generation, installation, and simulator interaction. Target the selected simulator explicitly; do not run Argent and another UI driver against it concurrently.
+3. Trial the real development build: launch by bundle identifier, start a named session through the UI, inspect the Lock Screen and Dynamic Island, pause/resume, then stop. Save screenshots and a real-time recording. Report separately whether app interaction, system-view inspection, and recording work. The documentation does not establish dedicated Live Activity verification; prove access on this simulator.
+4. If the trial succeeds, save repeatable flows for the D1 lifecycle smoke and D2 controls, validation, and foreground reconciliation. Prefer stable accessibility labels or identifiers. Each flow must establish its initial state and clean up its own test session; launching alone does not reset persisted data. Preserve app data for termination/relaunch checks.
+5. Use Argent for the D3 interactions and evidence it demonstrably supports. If setup or a system-view operation fails, record the limitation and continue with the existing computer-use controls and `simctl` recording. Tool availability never waives an acceptance gate or passes an unobserved result.
+
+For timing evidence, disable Argent's removal of still portions and preserve the full real-time video. Record the effective recording settings and frame/time references for the 1–2 second propagation measurement, 10-second pause, and 60-second background interval. An edited demo is not timing evidence. See [screen recording](https://docs.swmansion.com/argent/docs/features/screen-recording/).
+
+Saved [replay flows](https://docs.swmansion.com/argent/docs/features/flows/) must assert expected results, not merely complete taps. Record failed and skipped steps, evidence paths, and any manual observations in `docs/acceptance/study-timer.md`. UI inspection does not replace Swift lifecycle/store tests, native compilation, plugin regeneration checks, or the human demo. Keep injected fixtures distinct from ordinary UI observations.
 
 ## State and persistence choice
 
@@ -96,16 +110,16 @@ References: [Expo SQLite](https://docs.expo.dev/versions/v58.0.0/sdk/sqlite/), [
 - Missing file means idle. Invalid JSON or an unsupported schema is discarded after ending activities, returning `SESSION_DISCARDED`. An I/O read failure rejects with `PERSISTENCE_FAILED` and deletes nothing.
 - Test the real file store in a temporary directory: round trip, missing file, corrupt data, unsupported schema, and a failed write.
 
-## Proposed stack
+## Local delivery stack
 
-Each branch is based on the preceding branch. All D1–D3 paths are proposed; they do not exist yet.
+Verified local base: `main → chore/project-skills → docs/study-timer-plan`. D0 exists; D1–D3 remain planned and are created only after their gates pass. This run is local only: do not publish or merge.
 
-| Diff / branch                       | Parent | Commit / PR title                                                   | Scope                                                                            | Gate                                                                                     |
-| ----------------------------------- | ------ | ------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| D0 `docs/study-timer-plan`          | `main` | `docs: define study timer architecture and delivery stack`          | Requirements, plan, contract, diagrams, README links                             | Requirement coverage, links, Mermaid render                                              |
-| D1 `feat/study-timer-native`        | D0     | `feat: add study timer native module, widget target, and lifecycle` | Baseline fix, module, plugin, minimal extension, coordinator, store, Swift tests | Checkpoint A (real activity renders), then Checkpoint B (lifecycle tests + native smoke) |
-| D2 `feat/study-timer-screen`        | D1     | `feat: connect timer controls to native session state`              | Real screen, warnings, foreground reconciliation                                 | Typecheck/lint; simulator interaction                                                    |
-| D3 `feat/study-timer-live-surfaces` | D2     | `feat: complete Live Activity views and document the demo`          | Four presentations, goal ring, accessibility, acceptance doc, README runbook     | Visual/timing acceptance; clean-setup walkthrough                                        |
+| Diff / branch                       | Parent                 | Commit / PR title                                                   | Scope                                                                            | Gate                                                                                     |
+| ----------------------------------- | ---------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| D0 `docs/study-timer-plan`          | `chore/project-skills` | `docs: define study timer architecture and delivery stack`          | Requirements, plan, contract, diagrams, README links                             | Requirement coverage, links, Mermaid render                                              |
+| D1 `feat/study-timer-native`        | D0                     | `feat: add study timer native module, widget target, and lifecycle` | Baseline fix, module, plugin, minimal extension, coordinator, store, Swift tests | Checkpoint A (real activity renders), then Checkpoint B (lifecycle tests + native smoke) |
+| D2 `feat/study-timer-screen`        | D1                     | `feat: connect timer controls to native session state`              | Real screen, warnings, foreground reconciliation                                 | Typecheck/lint; simulator interaction                                                    |
+| D3 `feat/study-timer-live-surfaces` | D2                     | `feat: complete Live Activity views and document the demo`          | Four presentations, goal ring, accessibility, acceptance doc, README runbook     | Visual/timing acceptance; clean-setup walkthrough                                        |
 
 Do not create empty placeholder branches. Each branch should compile and keep the functionality below it. If a gate finds a defect, fix the owning diff and restack descendants. Each diff updates the "Current completion" line at the end of this file so the docs never overstate progress.
 
@@ -192,7 +206,7 @@ Each completed diff is created above its parent. Branches are created only when 
 
 ```mermaid
 flowchart LR
-    Main["main"] --> D0["D0 · 📋 Design and plan"]
+    Main["main"] --> Skills["chore/project-skills"] --> D0["D0 · 📋 Design and plan"]
     D0 --> D1["D1 · ⚙️ Native module and lifecycle"]
     D1 --> D2["D2 · 📱 Timer screen"]
     D2 --> D3["D3 · 🏝 Live surfaces and handoff"]
@@ -220,7 +234,7 @@ Review the one-session rule, native ownership, count-up behavior, the documented
 File layout for this checkpoint is defined in [Native build ownership](TECHNICAL_REQUIREMENTS.md#native-build-ownership).
 
 1. Enable inline modules: set `experiments.inlineModules.watchedDirectories` to `["native/StudyTimer"]` in `app.json`.
-2. **Macro discovery spike.** Add `native/StudyTimer/StudyTimerModule.swift` using `@ExpoModule` with one async `@JS` method, plus an empty `func definition() -> ModuleDefinition { ModuleDefinition {} }` so inline discovery registers it. Run `bunx expo prebuild`, build, and call it from JS with `requireNativeModule('StudyTimerModule')`. If it does not register or the macro fails, record the exact error and rewrite the module with DSL `AsyncFunction`s inside `definition()`. Either way, the TypeScript facade in `src/features/study-timer` is the only JS entry point.
+2. **Macro discovery spike.** Add `native/StudyTimer/StudyTimerModule.swift` using `@ExpoModule` with one async `@JS` method, plus an empty `func definition() -> ModuleDefinition {}` so inline discovery registers it. Run `bunx expo prebuild`, build, and call it from JS with `requireNativeModule('StudyTimerModule')`. If it does not register or the macro fails, record the exact error and rewrite the module with DSL `AsyncFunction`s inside `definition()`. Either way, the TypeScript facade in `src/features/study-timer` is the only JS entry point.
 3. Add `native/Shared/StudyTimerAttributes.swift` and a minimal `start`/`stop` in the module that calls `Activity.request` and `end`. These become the real methods, not temporary fixtures.
 4. Add `widgets/study-timer/StudyTimerLiveActivity.swift` and a widget bundle with a minimal `ActivityConfiguration` using `Text(timerInterval:pauseTime:countsDown:)`.
 5. Implement `plugins/with-study-timer.js` with SDK-compatible config APIs: extension target, widget sources, `StudyTimerAttributes.swift` membership in both the app and the widget target, embed phase, identifiers, deployment target (at least iOS 16.2), and `NSSupportsLiveActivities`. Wire it in `app.json` and add a native-build script (prebuild, then `expo run:ios`) separate from Metro startup.
@@ -249,6 +263,8 @@ Tests with controlled adapters: elapsed math and clamping; idempotent Pause/Resu
 
 Gate B: Swift tests pass, TypeScript contract checks pass, and a simulator smoke run exercises start, pause, resume, and stop against the real extension. A passing mock does not substitute for ActivityKit interaction.
 
+Run the smoke through a saved Argent flow if the trial above succeeds; otherwise use the existing simulator controls and record the same observations.
+
 ## D2 — Connect the React Native timer
 
 Proposed owners: `src/app/index.tsx`, `src/features/study-timer/use-study-timer.ts`, `timer-format.ts`, and feature components. Remove or adjust starter navigation only where needed for this screen.
@@ -257,6 +273,8 @@ Add a custom-name form, HH:MM:SS elapsed display, Pause/Resume, Stop, and Start 
 
 Gate: typecheck/lint, focused formatting tests, and real simulator input. Verify blank and long names, repeated taps, keyboard dismissal, loading and error states, accessibility labels, foreground reconciliation, and Retry. No optimistic state: the screen changes only when a native result arrives.
 
+With verified Argent support, save these interactions as replayable flows and rerun affected flows after fixes. Keep assertions on the displayed native result and control state; runtime JavaScript evaluation alone does not prove that a user can operate the controls.
+
 ## D3 — Live surfaces and reviewer handoff
 
 Extend the widget: Lock Screen name and elapsed; compact truncated name plus time; expanded full bounded name, time, and goal ring; minimal elapsed. Use the system timer text with explicit frames in compact and minimal regions. Keep a clear paused indicator and ensure the goal ring does not imply a countdown.
@@ -264,6 +282,8 @@ Extend the widget: Lock Screen name and elapsed; compact truncated name plus tim
 Add `docs/acceptance/study-timer.md` with environment, steps, expected and observed results, and evidence paths. Update the root README with commands an unfamiliar reviewer (or an LLM) can run non-interactively: prerequisites, install, `expo-doctor`, custom native build, Metro, simulator selection, plugin regeneration, troubleshooting, and test commands. Never describe the web export command as an iOS build.
 
 Run this demo and record pass/fail:
+
+Use the verified Argent flows and full real-time recordings where supported. Document fallback operations and inspect the actual Lock Screen and Island output for each presentation; passing app-screen assertions does not prove extension rendering.
 
 1. Start "Chapter 5 Review"; observe name and ticking time in the app and on the Lock Screen.
 2. Pause for 10 seconds; both surfaces stay frozen. Resume; no paused time is added. Measure propagation from a screen recording.
@@ -282,48 +302,14 @@ Include brief discussion notes on architecture, the hardest integration issue, i
 
 Reviewers clone the default branch, so it must contain the complete working app. After the stack passes its gates and the user approves, merge it into `main` bottom-up; publishing PRs alone does not satisfy submission. Merging needs explicit approval.
 
-## Graphite MCP: create and publish each completed diff
+## Graphite MCP: local completed diffs
 
-The MCP tools `mcp__graphite__learn_gt` and `mcp__graphite__run_gt_cmd` are available. A read-only `gt log short` shows only `main`. There is currently no remote; publishing cannot proceed until the intended GitHub repository is identified and configured.
+Verified on 2026-09-28: `gt log short` shows `main → chore/project-skills → docs/study-timer-plan`; no remote is configured. The user authorized D1–D3 locally and explicitly prohibited publishing or merging.
 
-For each completed slice:
-
-1. Confirm the current branch is its planned parent and inspect `git status --short`. Preserve unrelated edits and any pre-existing staged work.
-2. Write the slice, run its gate, and inspect the actual patch.
-3. Stage only its explicit files. Audit `git diff --cached --name-status`, `git diff --cached --stat`, and `git diff --cached --check`. Do not use broad staging flags.
-4. Create the stacked diff through Graphite MCP. Example for D0:
-
-```json
-{
-  "cwd": "/Users/benjaminschachter/boldvoice-interview",
-  "args": [
-    "create",
-    "docs/study-timer-plan",
-    "--message",
-    "docs: define study timer architecture and delivery stack",
-    "--no-interactive"
-  ],
-  "why": "Create the reviewed documentation diff above main"
-}
-```
-
-5. Confirm the new branch's parent and commit file boundary.
-6. Once the remote and Graphite setup are confirmed, publish completed branches (this pushes the current branch and its ancestors):
-
-```json
-{
-  "cwd": "/Users/benjaminschachter/boldvoice-interview",
-  "args": ["submit", "--no-interactive"],
-  "why": "Publish completed study timer diffs for review"
-}
-```
-
-7. Verify each PR's base and report actual links, validation, and remaining gates. Do not mark planned slices as published.
-
-Use `gt create` rather than `git commit`, and `gt submit` rather than `git push`. For feedback, stage only the correction, use `gt modify`, restack descendants as necessary, rerun affected checks, and resubmit. Do not run a broad `gt sync` over unrelated branches.
+For each slice, confirm the current branch is its completed parent, implement and pass its gate, review and fix findings, then stage only owned paths. Audit `git diff --cached --name-status`, `--stat`, and `--check`. Use Graphite MCP `gt create <planned branch> --message <title> --no-interactive`, then verify its parent and committed boundary. Do not create placeholder branches or run `gt submit`, `git push`, merge, or broad `gt sync`. Fix feedback with scoped staging and `gt modify`, restacking descendants and rerunning affected checks when needed.
 
 ## Timebox and stopping rules
 
 The challenge suggests 2–3 hours. Treat that as a target, not proof that native tooling will cooperate. Prioritize D1's Checkpoint A over everything else, then the lifecycle, then styling. Do not cut Dynamic Island or zombie handling and still claim all requirements passed. Log build and tooling delays separately. Defer themes, analytics, history, cloud sync, and lock-screen controls.
 
-Current completion: documentation authored; baseline fix, implementation, native tests and build, simulator acceptance, branch creation, and publication are pending.
+Current completion: D0 and project-skills branches exist locally; D1 baseline, Checkpoints A/B, independent review and fixes passed with the DSL fallback. D1 is verified; D2/D3 gates remain open. See docs/acceptance/study-timer.md for evidence and the minimal-trigger limitation. Publication and merge are excluded from this run.
