@@ -2,8 +2,12 @@
   "name": "boldvoice-interview",
   "private": true,
   "packageManager": "bun@1.4.0",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "devDependencies": {
+    "prettier": "3.9.9",
     "turbo": "2.10.12"
   },
   "scripts": {
@@ -13,6 +17,8 @@
     "web": "turbo run web",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write . && sh scripts/format-swift.sh",
+    "format:check": "prettier --check . && sh scripts/format-swift.sh --check"
   }
 }

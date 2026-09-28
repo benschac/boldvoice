@@ -13,15 +13,15 @@ bun run dev
 
 Root commands delegate to package scripts through Turbo:
 
-| Command | Action |
-| --- | --- |
-| `bun run dev` | Start Expo / Metro |
-| `bun run ios` | Start Expo and open iOS simulator |
-| `bun run android` | Start Expo and open Android emulator |
-| `bun run web` | Start the web app |
-| `bun run typecheck` | Check TypeScript |
-| `bun run lint` | Run Expo ESLint |
-| `bun run build` | Export the web app to `apps/mobile/dist` |
+| Command             | Action                                   |
+| ------------------- | ---------------------------------------- |
+| `bun run dev`       | Start Expo / Metro                       |
+| `bun run ios`       | Start Expo and open iOS simulator        |
+| `bun run android`   | Start Expo and open Android emulator     |
+| `bun run web`       | Start the web app                        |
+| `bun run typecheck` | Check TypeScript                         |
+| `bun run lint`      | Run Expo ESLint                          |
+| `bun run build`     | Export the web app to `apps/mobile/dist` |
 
 ## Structure
 
