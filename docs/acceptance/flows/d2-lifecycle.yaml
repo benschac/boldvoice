@@ -1,0 +1,78 @@
+steps:
+  - echo: "Requires the installed iOS build, Metro, and enabled Live Activities. Stops any existing study session before testing."
+  - launch: com.benjaminschachter.studytimer
+  - await: { visible: { text: Study timer }, timeout: 15000 }
+  - await: { idle: true, stableFor: 400, timeout: 10000 }
+  - when: { exists: { id: timer-stop } }
+    steps:
+      - scroll-to: { target: { id: timer-stop }, direction: down }
+      - tap: { id: timer-stop }
+      - await: { exists: { id: timer-name-input } }
+      - await: { hidden: { id: timer-stop } }
+  - echo: "Restart after cleanup to reset the unpersisted name input and scroll position."
+  - launch: com.benjaminschachter.studytimer
+  - await: { visible: { id: timer-name-input } }
+  - await: { idle: true }
+  - echo: "Blank names show validation and leave the app idle."
+  - scroll-to: { target: { id: timer-start }, direction: down }
+  - tap: { id: timer-start }
+  - await:
+      { text: { in: { id: timer-error }, equals: "Enter a session name." } }
+  - assert: { visible: { id: timer-name-input } }
+  - echo: "Submit a custom name with the keyboard Done action."
+  - scroll-to: { target: { id: timer-name-input }, direction: up }
+  - type:
+      {
+        into: { id: timer-name-input },
+        text: Argent Chapter Review,
+        submit: true,
+      }
+  - await: { visible: { id: timer-session-name } }
+  - assert:
+      {
+        text: { in: { id: timer-session-name }, equals: Argent Chapter Review },
+      }
+  - await: { text: { in: { id: timer-phase }, equals: IN PROGRESS } }
+  - await:
+      {
+        text:
+          { in: { id: timer-activity-status }, equals: Live Activity active },
+      }
+  - assert: { hidden: { id: timer-name-input } }
+  - assert: { hidden: { id: timer-error } }
+  - await:
+      {
+        text:
+          {
+            in: { id: timer-elapsed },
+            matches: '^(?:Elapsed time )?(?!00:00:00)\d{2,}:\d{2}:\d{2}$',
+          },
+        timeout: 10000,
+      }
+  - echo: "Pause and assert the native-returned phase and controls."
+  - scroll-to: { target: { id: timer-pause }, direction: down }
+  - tap: { id: timer-pause }
+  - await: { text: { in: { id: timer-phase }, equals: PAUSED } }
+  - assert: { visible: { id: timer-resume } }
+  - assert: { hidden: { id: timer-pause } }
+  - wait: 10000
+  - assert: { text: { in: { id: timer-phase }, equals: PAUSED } }
+  - echo: "The ten-second phase assertion does not compare elapsed values; frozen-time proof needs the retained recording."
+  - scroll-to: { target: { id: timer-resume }, direction: down }
+  - tap: { id: timer-resume }
+  - await: { text: { in: { id: timer-phase }, equals: IN PROGRESS } }
+  - assert: { visible: { id: timer-pause } }
+  - assert: { hidden: { id: timer-resume } }
+  - echo: "Stop and verify the new-session form replaces the active session."
+  - scroll-to: { target: { id: timer-stop }, direction: down }
+  - tap: { id: timer-stop }
+  - await: { exists: { id: timer-name-input } }
+  - scroll-to: { target: { id: timer-name-input }, direction: up }
+  - assert: { visible: { id: timer-name-input } }
+  - await: { idle: true }
+  - assert: { visible: { id: timer-start } }
+  - assert: { hidden: { id: timer-session-name } }
+  - assert: { hidden: { id: timer-stop } }
+  - assert: { hidden: { id: timer-error } }
+  - assert: { hidden: { id: timer-warning } }
+  - echo: "App lifecycle checks finished. Inspect the system separately for Live Activity disappearance."

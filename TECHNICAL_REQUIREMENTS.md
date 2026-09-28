@@ -1,15 +1,17 @@
 # Study timer: technical design
 
-Status: implementation started; acceptance gates remain unverified, 2026-09-28. [REQUIREMENTS.md](REQUIREMENTS.md) is authoritative. [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) defines delivery order and contains the embedded architecture, data relationship, lifecycle, and stack diagrams.
+Status: D1–D3 implemented, reviewed, and verified on the simulator, 2026-09-28. [REQUIREMENTS.md](REQUIREMENTS.md) is authoritative. [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) defines delivery order and contains the embedded architecture, data relationship, lifecycle, and stack diagrams.
 
 ## Repository baseline at implementation start
 
-The workspace contains an Expo Router starter in `apps/mobile`, Bun workspaces, and Turbo. `apps/mobile/package.json` requests Expo `~58.0.0-preview.7`; `bun.lock` resolves Expo `58.0.0-preview.8`, `expo-modules-core` `58.0.8`, and React Native `0.88.0-rc.2`. At implementation start there was no study timer, local native module, or widget extension. Current verification is recorded in [the acceptance log](docs/acceptance/study-timer.md). The existing `ios` script starts Metro; it does not build custom native code. Verified local stack: `main → chore/project-skills → docs/study-timer-plan`. No Git remote is configured; this implementation run must not publish or merge.
+The workspace started with an Expo Router starter in `apps/mobile`, Bun workspaces, and Turbo. It now contains the native timer, persistent lifecycle, React Native screen, and widget extension. `apps/mobile/package.json` requests Expo `~58.0.0-preview.7`; `bun.lock` resolves Expo `58.0.0-preview.8`, `expo-modules-core` `58.0.8`, and React Native `0.88.0-rc.2`. Current verification is recorded in [the acceptance log](docs/acceptance/study-timer.md). The `ios` script starts Metro. The `ios:build` script runs prebuild and builds the custom native app.
 
-Baseline defects recorded during planning, to recheck and fix in D1 before native work:
+The completed local stack is `main → chore/project-skills → docs/study-timer-plan → feat/study-timer-native → feat/study-timer-screen → feat/study-timer-live-surfaces`. Actual acceptance and its limits are recorded in the acceptance log. The configured GitHub remote is `benschac/boldvoice`. The subsequent user request authorizes stack publication; merging remains excluded.
 
-- `bunx expo-doctor` fails: multiple copies of `expo`, `expo-constants`, `expo-font`, `expo-glass-effect`, `expo-linking`, `@expo/dom-webview`, and `@expo/log-box` are installed. The installed tree also contains React Native `0.88.0-rc.1` alongside `rc.2`, and `expo-modules-core` declares a `react-native-worklets` peer range (`^0.7`–`^0.10`) that excludes the app's `0.13.0`.
-- `app.json` has no `ios.bundleIdentifier`, so `expo run:ios` would prompt interactively and the extension has no parent identifier to derive from.
+D1 resolved the baseline defects recorded during planning:
+
+- Duplicate native packages caused `expo-doctor` to fail. `bunfig.toml` now selects Bun's hoisted linker, and the root package override pins React Native to the app's `0.88.0-rc.2`. A clean install passed all 20 doctor checks and `expo install --check`. The SDK preview's declared worklets peer range still excludes the app's SDK-selected `0.13.0`; this known mismatch is recorded in the acceptance log alongside the successful native build.
+- `app.json` now sets `ios.bundleIdentifier` to `com.benjaminschachter.studytimer`. The plugin derives the extension identifier by appending `.StudyTimerWidget`.
 
 ## Decisions and scope
 
@@ -21,7 +23,7 @@ The bridge is an [inline Expo module](https://docs.expo.dev/modules/inline-modul
 - A Swift file is registered as a module only if its text matches `func definition() -> …ModuleDefinition`. The JS name is the file name: `StudyTimerModule.swift` is loaded with `requireNativeModule('StudyTimerModule')`.
 - Watched folders cannot be `./`, cannot contain spaces or parentheses, and cannot be nested inside another watched folder.
 
-D1 tested Expo Modules 2.0 Swift macros (`@ExpoModule`, `@JS`). The app target could not load ExpoModulesMacros, so the implementation uses the planned DSL fallback. The same TypeScript contract successfully invoked AsyncFunction methods on the simulator. Original spike rationale follows. A macro-only module does not contain the text that discovery looks for, so it would not be registered. The macro documentation says its synthesized members are merged into the module's definition, so the plan is `@ExpoModule` with `@JS` methods plus an empty `func definition() -> ModuleDefinition {}` for discovery. D1 proves this registers and that an async `@JS` call crosses the bridge. If it fails, record the exact failure and use the DSL (`AsyncFunction`) inside `definition()` behind the same TypeScript interface. Generated TypeScript is still upcoming work in the [Expo Modules 2.0 announcement](https://expo.dev/blog/an-early-look-at-expo-modules-2-0), so the contract stays hand-written.
+D1 tested Expo Modules 2.0 Swift macros (`@ExpoModule`, `@JS`). The app target could not load the ExpoModulesMacros compiler plugin. The implementation therefore uses a `Module` subclass with `definition()` and DSL `AsyncFunction` methods, discovered from the watched native folder. Real simulator calls verified the same handwritten TypeScript contract. See the acceptance report for the compiler failure and bridge checks.
 
 The Live Activity is a WidgetKit extension, not an Expo native view. No Android implementation, backend, push updates, account system, session history, or lock-screen action buttons are required. Web and Android entry points should show an unsupported-feature message without loading an iOS-only binding.
 
@@ -41,15 +43,16 @@ Platform behavior:
 - **App killed:** the requirement allows "ends gracefully or persists with last state". We persist. The running timer text is date-based, so the Lock Screen keeps counting after termination; a paused activity stays frozen. The app reconciles on next launch.
 - **Lock Screen time format:** the Live Activity uses the system timer text (`Text(timerInterval:pauseTime:countsDown:showsHours:)`) so iOS ticks it without app updates. Its format is chosen by the system and may not match the app's zero-padded `HH:MM:SS` (for example, no leading zero hour). Record the observed format; accept the difference rather than pushing per-second updates.
 - **Timer text width:** system timer text reserves space for its widest value, which can clip in compact and minimal Island regions. Give it explicit frames there and verify with long-duration fixtures.
-- **Minimal presentation:** iOS shows the minimal view only when more than one app has an active Live Activity. The planned trigger is a concurrent activity from another app (for example, a Clock timer, to be verified on the simulator). If it cannot be reproduced, show previews and leave that acceptance item explicitly open.
+- **Minimal presentation:** iOS shows the minimal view only when more than one app has an active Live Activity. D1 tried to find Clock as the second activity source, but the simulator returned an App Store listing rather than an installed Clock app. D3 established actual minimal presentation with the included Activity Companion fixture and recorded an hour-duration screenshot.
+- **System text sizing:** Lock Screen and expanded layouts cap Dynamic Type at `.large` to fit the system height limit. Names use 13pt text, shrinking to 70% within four lines; minimal elapsed uses 9pt. Full names remain accessible labels. Largest-text fixture fitting does not establish full large-text support or VoiceOver navigation.
 - **Eight-hour limit:** iOS ends a Live Activity after about eight hours active. The app timer keeps running; foreground reconciliation reports the activity as missing and offers retry.
 - **Update latency:** the 1–2 second target is measured, not assumed. Use Argent recording only after its simulator trial passes, with removal of still portions disabled; otherwise use `xcrun simctl io <selected-device-id> recordVideo`. Preserve the full real-time recording and step through frames around Pause and Resume. Record tool settings and frame/time references; an edited demo cannot prove latency.
 - **Clock changes:** elapsed time uses the wall clock, matching the date-based system timer. Manual clock jumps are a documented limitation; negative deltas are clamped to zero.
-- **Deployment targets:** the app uses the SDK's supported minimum; the extension targets at least iOS 16.2 (`ActivityContent`, `request(attributes:content:pushType:)`). Local toolchain at planning time: Xcode 26.6. Use a Dynamic Island simulator for acceptance.
+- **Deployment targets:** the app and extension target iOS 16.4, the SDK's supported minimum. The extension uses `ActivityContent` and `request(attributes:content:pushType:)`. Local toolchain at planning time: Xcode 26.6. Use a Dynamic Island simulator for acceptance.
 
 Engineering choices:
 
-- **Corrupt storage is discarded.** An unreadable snapshot ends every activity of this module's type and returns idle with a warning. Losing a corrupt timer is an acceptable outcome for a study timer; a recovery UI is not justified here.
+- **Corrupt storage is discarded.** Invalid data triggers activity cleanup, file deletion, and an idle result with a warning. An I/O read failure preserves the file and activities and rejects with `PERSISTENCE_FAILED`. Losing corrupt timer data is acceptable for this app; a recovery UI is outside scope.
 - **Own config plugin, no target-generation package.** The widget extension is a separate Xcode target, and `ios/` is generated, so a config plugin must add that target on every prebuild. We write a single-purpose local plugin instead of adding `@bacons/apple-targets`: it avoids a dependency for one target and keeps the generated project changes readable. If editing the Xcode project blocks D1, stop and ask before adding a dependency.
 - **Inline module instead of a local module package.** It removes the `create-expo-module` scaffold, podspec, rename, and autolinking verification, and compiles session code into the app target, where sharing the attributes file with the widget is Apple's standard setup. The trade-off is an experimental API; if it breaks, a `create-expo-module` local module can host the same Swift files behind the same TypeScript interface.
 - **Stay on the preview SDK** chosen by the scaffold. Preview/RC risk is recorded rather than downgraded mid-challenge.
@@ -88,7 +91,9 @@ Persisted snapshot fields:
 
 Running elapsed is `accumulatedMs + max(0, nowMs - runningSinceMs)`; paused elapsed is `accumulatedMs`. Pause commits elapsed and clears the anchor; Resume sets a new anchor. The foreground JS interval only redraws the screen. It never updates native state or ActivityKit.
 
-For the widget, derive an effective start date as `runningSinceMs - accumulatedMs`. Render time with `Text(timerInterval: effectiveStart...farFuture, pauseTime: pausedAt, countsDown: false)`, where paused content sets `pauseTime` to freeze the value. Render the running goal ring with `ProgressView(timerInterval: effectiveStart...effectiveStart + goal, countsDown: false)` and a static `ProgressView(value:)` while paused. If the timer-driven ring does not advance in the extension, show a labeled snapshot ring updated at transitions instead.
+The widget derives its effective start date from `runningSinceMs - accumulatedMs`. While paused, it uses a zero epoch anchor and freezes system timer text at that anchor. `Text(timerInterval:pauseTime:countsDown:showsHours:)` displays elapsed time without per-second app updates. The running goal ring uses `ProgressView(timerInterval:countsDown:)`; the paused ring uses `Circle.trim` with elapsed divided by the goal and clamped to 0–1. Both identify the fixed 25-minute goal. D3 observed the running ring advancing while the app process was terminated, and the paused ring frozen. Visual and timing evidence is recorded in the acceptance log.
+
+The file reader validates snapshot semantics, including finite nonnegative elapsed time, phase/anchor consistency, and dates within the widget's supported range. It rejects values that could reverse a timer interval or place the goal interval beyond `Date.distantFuture`.
 
 ## TypeScript contract
 
@@ -143,13 +148,13 @@ Command semantics:
 
 The store is a native Foundation file, `Application Support/StudyTimer/session.json`, holding `{ schemaVersion: 1, session }`. It is replaced atomically with [Foundation's atomic write option](https://developer.apple.com/documentation/foundation/nsdata/writingoptions/atomic) on each transition, never per second. No App Group is needed because the extension reads ActivityKit content, not the file. There is exactly one writer: the coordinator. React never persists a copy.
 
-Each transition makes one write, and the write is the commit point:
+Each state-changing transition makes one write, and the write is the commit point. Repeated Pause or Resume commands preserve the snapshot without another write:
 
 - **Start:** validate the name and reject an existing session before mutation; reconcile idle state by ending activities of this type, write the running snapshot, then request the activity. If the request throws, the timer still runs with `ACTIVITY_UNAVAILABLE`.
 - **Pause / Resume:** write the new snapshot, then update the matching activity's content.
 - **Stop:** delete the snapshot, then end every activity of this type with immediate dismissal. Deleting first means a crash between the two steps leaves only an orphan activity, which the next reconciliation ends.
 
-Reconciliation runs in `getSession` (launch and foreground) and at the start of every Start:
+Reconciliation runs in `getSession` for launch and foreground, before starting an idle timer, and on explicit activity retry. Invalid names, conflicting Starts, and stale session IDs reject before mutation:
 
 1. Load the snapshot. Missing file means idle. Invalid JSON or an unsupported schema means discard: end all activities of this type, delete the file, and return idle with `SESSION_DISCARDED`, or prioritize `ACTIVITY_CLEANUP_UNCONFIRMED` if an activity survives the cleanup observation. An I/O read failure rejects with `PERSISTENCE_FAILED` and deletes nothing.
 2. Keep at most one matching nonterminal activity of `StudyTimerAttributes`; end orphan activities and duplicate matches. Never touch other attributes types.
@@ -173,7 +178,8 @@ apps/mobile/
 ├── native/
 │   ├── Package.swift                 # SwiftPM root for host tests; outside the watched folder
 │   ├── StudyTimer/                   # watched: every file here compiles into the app target
-│   │   ├── StudyTimerModule.swift    # inline module: bridge + ActivityKit adapter
+│   │   ├── StudyTimerModule.swift    # inline DSL bridge
+│   │   ├── StudyTimerActivityAdapter.swift # real ActivityKit operations
 │   │   └── Core/                     # Foundation-only coordinator, store, timer math
 │   ├── Shared/
 │   │   └── StudyTimerAttributes.swift  # added to app and widget targets by our plugin
@@ -187,7 +193,7 @@ Layout rules that follow from how inline modules compile:
 
 - Only `native/StudyTimer` is watched. `Package.swift`, tests, and widget sources stay outside it, or the app build would try to compile them.
 - `StudyTimerAttributes.swift` sits outside the watched folder, and the plugin adds it to both the app and widget targets as an ordinary file reference. This avoids adding a file that is already in the app's synchronized folder to a second target. Do not use `inlineModules.xcodeProjectTargets` for the widget: it would add the whole watched folder, including the Expo import, to the extension.
-- The app and the extension compile the same attributes file into their own Swift modules, which is Apple's standard setup. D1 still proves an activity requested by the module renders in the extension.
+- The app and the extension compile the same attributes file into their own Swift modules. D1 verified that an activity requested by the module renders in the extension.
 
 The config plugin in `apps/mobile/plugins` generates the extension target, source membership for the widget and shared attributes, the dependency/embed phase, bundle identifiers, deployment settings, and `NSSupportsLiveActivities`.
 
@@ -197,4 +203,4 @@ Generated `ios/` files are disposable. Persist native project changes in the plu
 
 ## Acceptance boundary
 
-Typecheck and lint prove only static correctness. Native compilation proves inline-module registration, macro availability, extension membership, and embedding. Simulator interaction proves the timer and system presentations. Keep those claims separate in the handoff. If a measured requirement fails, record the result and fix it or leave the requirement explicitly open.
+Typecheck and lint prove static correctness. Native compilation validates the DSL module, extension membership, and embedding; a successful JavaScript call verifies registration at runtime. Simulator interaction verifies the timer and the presentations actually observed. Keep those claims separate in the handoff. If a measured requirement fails, record the result and fix it or leave the requirement explicitly open.
