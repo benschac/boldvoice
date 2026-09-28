@@ -1,6 +1,6 @@
 # Study timer implementation plan and Graphite stack
 
-Status: implementation started, 2026-09-28. This deliverable decomposes [REQUIREMENTS.md](REQUIREMENTS.md); it does not claim the native module is built. Read [TECHNICAL_REQUIREMENTS.md](TECHNICAL_REQUIREMENTS.md) for the contract and the documented assumptions. Architecture, data relationships, lifecycle, and stack diagrams are embedded below.
+Status: D1 and D2 verified, 2026-09-28; D3 acceptance remains in progress. This deliverable decomposes [REQUIREMENTS.md](REQUIREMENTS.md). Read [TECHNICAL_REQUIREMENTS.md](TECHNICAL_REQUIREMENTS.md) for the contract and the documented assumptions. Architecture, data relationships, lifecycle, and stack diagrams are embedded below.
 
 ## Delivery principle
 
@@ -112,7 +112,7 @@ References: [Expo SQLite](https://docs.expo.dev/versions/v58.0.0/sdk/sqlite/), [
 
 ## Local delivery stack
 
-Verified local base: `main → chore/project-skills → docs/study-timer-plan`. D0 exists; D1–D3 remain planned and are created only after their gates pass. This run is local only: do not publish or merge.
+Verified local base: `main → chore/project-skills → docs/study-timer-plan`. D0 and D1 exist; D2 has passed its gates and is ready for its local branch. D3 remains planned and will be created after its gates pass. This run is local only: do not publish or merge.
 
 | Diff / branch                       | Parent                 | Commit / PR title                                                   | Scope                                                                            | Gate                                                                                     |
 | ----------------------------------- | ---------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -312,4 +312,4 @@ For each slice, confirm the current branch is its completed parent, implement an
 
 The challenge suggests 2–3 hours. Treat that as a target, not proof that native tooling will cooperate. Prioritize D1's Checkpoint A over everything else, then the lifecycle, then styling. Do not cut Dynamic Island or zombie handling and still claim all requirements passed. Log build and tooling delays separately. Defer themes, analytics, history, cloud sync, and lock-screen controls.
 
-Current completion: D0 and project-skills branches exist locally; D1 baseline, Checkpoints A/B, independent review and fixes passed with the DSL fallback. D1 is verified; D2/D3 gates remain open. See docs/acceptance/study-timer.md for evidence and the minimal-trigger limitation. Publication and merge are excluded from this run.
+Current completion: D1 native lifecycle and D2 screen gates, independent reviews, and fixes passed. D3 system presentation and acceptance remain open. See docs/acceptance/study-timer.md. Publication and merge are excluded from this run.
