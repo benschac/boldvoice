@@ -2,6 +2,12 @@
 
 Expo SDK 58 beta app using Expo Router, TypeScript, Bun workspaces, and Turborepo.
 
+## Study timer challenge
+
+- [Challenge requirements](REQUIREMENTS.md): the source of truth.
+- [Technical requirements](TECHNICAL_REQUIREMENTS.md): contract, timer model, persistence, and documented assumptions.
+- [Implementation plan](IMPLEMENTATION_PLAN.md): delivery stack, verification gates, and demo checklist.
+
 ## Get started
 
 Use Bun 1.4.0 and Node.js 24.3 or newer on the Node 24 LTS line.
