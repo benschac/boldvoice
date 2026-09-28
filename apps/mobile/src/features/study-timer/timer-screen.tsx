@@ -18,9 +18,9 @@ import {
 } from "react-native-keyboard-controller";
 
 import type { SessionSnapshot } from "./study-timer.types";
-import { RollingElapsed } from "./rolling-elapsed";
+import { FocusDial } from "./focus-dial";
 import { TimerButton } from "./timer-button";
-import { elapsedMilliseconds, formatElapsed } from "./timer-format";
+import { elapsedMilliseconds } from "./timer-format";
 import { timerPalettes, type TimerPalette } from "./timer-theme";
 import { useStudyTimer } from "./use-study-timer";
 
@@ -39,11 +39,11 @@ function ElapsedTime({
     const interval = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(interval);
   }, [session, foreground]);
-  const formatted = formatElapsed(elapsedMilliseconds(session, now));
   return (
-    <RollingElapsed
-      formatted={formatted}
-      color={colors.text}
+    <FocusDial
+      elapsedMs={elapsedMilliseconds(session, now)}
+      goalDurationMs={session.goalDurationMs}
+      colors={colors}
       running={foreground && session.phase === "running"}
     />
   );
@@ -186,9 +186,6 @@ export function TimerScreen() {
                 foreground={timer.foreground}
                 colors={colors}
               />
-              <Text style={[styles.timeLegend, { color: colors.secondary }]}>
-                hours · minutes · seconds
-              </Text>
             </View>
             <View
               style={[
@@ -228,19 +225,14 @@ export function TimerScreen() {
                 />
               </View>
             </View>
-            <View style={[styles.goal, { borderColor: colors.border }]}>
-              <Text style={[styles.goalTitle, { color: colors.text }]}>
-                {session.goalDurationMs / 60_000}-minute focus goal
-              </Text>
-              <Text
-                style={[
-                  styles.caption,
-                  { color: colors.secondary, textAlign: "center" },
-                ]}
-              >
-                The Island ring marks your goal. Keep going as long as you like.
-              </Text>
-            </View>
+            <Text
+              style={[
+                styles.caption,
+                { color: colors.secondary, textAlign: "center" },
+              ]}
+            >
+              Your timer continues after the goal.
+            </Text>
           </Animated.View>
         ) : (
           <Animated.View
@@ -466,7 +458,7 @@ const styles = StyleSheet.create({
   },
   startButton: { marginTop: 12 },
   card: { padding: 24, borderRadius: 24, borderCurve: "continuous", gap: 18 },
-  session: { gap: 24, paddingTop: 28 },
+  session: { gap: 20, paddingTop: 12 },
   phase: {
     alignSelf: "center",
     flexDirection: "row",
@@ -484,12 +476,9 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
     textAlign: "center",
   },
-  clock: { gap: 8, paddingVertical: 20 },
-  timeLegend: { fontSize: 13, letterSpacing: 0.6, textAlign: "center" },
+  clock: { paddingVertical: 4 },
   controls: { gap: 12 },
   control: { flex: 1 },
-  goal: { borderTopWidth: 1, marginTop: 12, paddingTop: 24, gap: 6 },
-  goalTitle: { fontSize: 15, fontWeight: "600", textAlign: "center" },
   notice: { padding: 20, gap: 14, borderRadius: 18, borderCurve: "continuous" },
   pending: {
     minHeight: 24,

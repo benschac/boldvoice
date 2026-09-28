@@ -113,7 +113,9 @@ The timer uses React Native for layout and elapsed text, Expo Router for its nat
 
 `react-native-keyboard-controller` 1.22.4 is the only dependency added for UI polish. Its keyboard-aware scroll view reserves room for the measured form actions, bounded by the visible viewport so large text cannot push the focused input above the screen. The input still submits with the keyboard Done action. A native rebuild is required after installing this dependency.
 
-There is no third-party UI kit. [Pressto](https://github.com/enzomanuelmangano/pressto) is deferred because the timer uses native SwiftUI button feedback. [Skia](https://github.com/shopify/react-native-skia) is deferred because this layout needs no canvas or custom rendering. Reanimated supplies only a short, reduced-motion-aware opacity entrance when switching between session entry and an active session. The clock digits do not animate.
+The app now shows the same 25-minute goal as the expanded Island. Its open arc adapts the [step-counter recipe](https://number-flow-react-native.awingender.com/docs/recipes/step-counter), using `react-native-svg` 15.15.5 for the arc and background-colored gradient fades at the rolling digits' top and bottom edges. Progress shares the elapsed display's native timestamps, freezes on Pause, and caps at 100% while elapsed time continues. Installing SVG requires rebuilding the development app.
+
+There is no third-party UI kit. [Pressto](https://github.com/enzomanuelmangano/pressto) is deferred because the timer uses native SwiftUI button feedback. [Skia](https://github.com/shopify/react-native-skia) is deferred because a few SVG shapes suffice for this screen. Reanimated supplies the rolling digits and a short, reduced-motion-aware opacity entrance when switching between session entry and an active session.
 
 API references: [SDK 58 Expo UI buttons](https://docs.expo.dev/versions/v58.0.0/sdk/ui/swift-ui/button/), [keyboard-aware scrolling](https://kirillzyusko.github.io/react-native-keyboard-controller/docs/api/components/keyboard-aware-scroll-view).
 
@@ -162,7 +164,7 @@ The stack is published for review in [benschac/boldvoice](https://github.com/ben
 | `feat/study-timer-screen`        | `feat/study-timer-native` | Completed D2: controls, native state, errors, foreground reconciliation        |
 | `feat/study-timer-live-surfaces` | `feat/study-timer-screen` | Completed D3 tip: system layouts, acceptance evidence, reviewer handoff        |
 
-The UI polish continuation is `codex/study-timer-ui-polish`, directly above `feat/study-timer-live-surfaces`. Check out the polished app with `gt checkout codex/study-timer-ui-polish`; the D3 baseline remains on `feat/study-timer-live-surfaces`. The polish branch is local until explicitly published.
+The UI polish continuation is `codex/study-timer-ui-polish`, directly above `feat/study-timer-live-surfaces`, followed by `codex/study-timer-animation` and `codex/study-timer-focus-progress`. Check out the latest polished app with `gt checkout codex/study-timer-focus-progress`; the D3 baseline remains on `feat/study-timer-live-surfaces`. These continuations are local until explicitly published.
 
 Review a slice with `git diff <parent>..<branch>` using the table above. Review each implementation branch against its listed parent. Each implementation branch was created after its required gate passed. Project pstack roles inherit the parent's model and reasoning settings, with one bounded independent reviewer per diff. The [implementation plan](IMPLEMENTATION_PLAN.md) owns that policy.
 

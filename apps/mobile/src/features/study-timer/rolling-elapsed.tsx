@@ -14,6 +14,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 
 // Adapted from hewad-mubariz/reactnative-50-days, timer/src/components/Digit.tsx.
 function RollingDigit({
@@ -80,10 +81,12 @@ function RollingDigit({
 export function RollingElapsed({
   formatted,
   color,
+  background,
   running,
 }: {
   formatted: string;
   color: string;
+  background: string;
   running: boolean;
 }) {
   const [width, setWidth] = useState(0);
@@ -147,6 +150,23 @@ export function RollingElapsed({
             />
           ),
         )}
+        <Svg
+          pointerEvents="none"
+          accessible={false}
+          style={StyleSheet.absoluteFill}
+          width="100%"
+          height="100%"
+        >
+          <Defs>
+            <LinearGradient id="digitEdges" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={background} stopOpacity="1" />
+              <Stop offset="0.18" stopColor={background} stopOpacity="0" />
+              <Stop offset="0.82" stopColor={background} stopOpacity="0" />
+              <Stop offset="1" stopColor={background} stopOpacity="1" />
+            </LinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill="url(#digitEdges)" />
+        </Svg>
       </View>
     </View>
   );
