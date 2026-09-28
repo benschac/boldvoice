@@ -26,7 +26,11 @@ export function ThemedText({
 
   return (
     <Text
-      style={[{ color: theme[themeColor ?? "text"] }, styles[type], style]}
+      style={[
+        { fontFamily: Fonts.rounded, color: theme[themeColor ?? "text"] },
+        styles[type],
+        style,
+      ]}
       {...rest}
     />
   );

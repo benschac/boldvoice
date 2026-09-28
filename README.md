@@ -103,6 +103,22 @@ Use full real-time screen recordings to measure the 1–2 second pause/resume pr
 
 ## Architecture
 
+### UI stack
+
+The elapsed display adapts the two-layer, 300 ms upward digit translation from [reactnative-50-days Timer](https://github.com/hewad-mubariz/reactnative-50-days/blob/main/timer/src/components/Digit.tsx). It retains the app's count-up timestamps, typography, and controls. Reduce Motion uses immediate updates; pause and foreground reconciliation cancel or reset transitions. This animation uses the existing Reanimated installation with no new dependencies. Its local continuation branch is `codex/study-timer-animation`, above `codex/study-timer-ui-polish`.
+
+The timer uses React Native for layout and elapsed text, Expo Router for its native header, and the already-installed `@expo/ui/swift-ui` for iOS buttons. SF Symbols come through `expo-image`. The app and widget share an ivory/forest-green direction, with amber identifying paused sessions.
+
+`react-native-keyboard-controller` 1.22.4 is the only dependency added for UI polish. Its keyboard-aware scroll view reserves room for the measured form actions, bounded by the visible viewport so large text cannot push the focused input above the screen. The input still submits with the keyboard Done action. A native rebuild is required after installing this dependency.
+
+The app now shows the same 25-minute goal as the expanded Island. Its open arc adapts the [step-counter recipe](https://number-flow-react-native.awingender.com/docs/recipes/step-counter), using `react-native-svg` 15.15.5 for the arc and background-colored gradient fades at the rolling digits' top and bottom edges. Progress shares the elapsed display's native timestamps, freezes on Pause, and caps at 100% while elapsed time continues. Installing SVG requires rebuilding the development app.
+
+There is no third-party UI kit. [Pressto](https://github.com/enzomanuelmangano/pressto) is deferred because the timer uses native SwiftUI button feedback. [Skia](https://github.com/shopify/react-native-skia) is deferred because a few SVG shapes suffice for this screen. Reanimated supplies the rolling digits and a short, reduced-motion-aware opacity entrance when switching between session entry and an active session.
+
+API references: [SDK 58 Expo UI buttons](https://docs.expo.dev/versions/v58.0.0/sdk/ui/swift-ui/button/), [keyboard-aware scrolling](https://kirillzyusko.github.io/react-native-keyboard-controller/docs/api/components/keyboard-aware-scroll-view).
+
+### Timer ownership
+
 | Component                                           | Responsibility                                                                        |
 | --------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | `src/features/study-timer`                          | Typed platform facade, React hook, controls, warnings, and display-only ticks         |
@@ -146,7 +162,9 @@ The stack is published for review in [benschac/boldvoice](https://github.com/ben
 | `feat/study-timer-screen`        | `feat/study-timer-native` | Completed D2: controls, native state, errors, foreground reconciliation        |
 | `feat/study-timer-live-surfaces` | `feat/study-timer-screen` | Completed D3 tip: system layouts, acceptance evidence, reviewer handoff        |
 
-Check out the complete app with `gt checkout feat/study-timer-live-surfaces`. Review a slice with `git diff <parent>..<branch>` using the table above. Review each implementation branch against its listed parent. The working app is on `feat/study-timer-live-surfaces`. Each implementation branch was created after its required gate passed. Project pstack roles inherit the parent's model and reasoning settings, with one bounded independent reviewer per diff. The [implementation plan](IMPLEMENTATION_PLAN.md) owns that policy.
+The UI polish continuation is `codex/study-timer-ui-polish`, directly above `feat/study-timer-live-surfaces`, followed by `codex/study-timer-animation` and `codex/study-timer-focus-progress`. Check out the latest polished app with `gt checkout codex/study-timer-focus-progress`; the D3 baseline remains on `feat/study-timer-live-surfaces`. These continuations are local until explicitly published.
+
+Review a slice with `git diff <parent>..<branch>` using the table above. Review each implementation branch against its listed parent. Each implementation branch was created after its required gate passed. Project pstack roles inherit the parent's model and reasoning settings, with one bounded independent reviewer per diff. The [implementation plan](IMPLEMENTATION_PLAN.md) owns that policy.
 
 ## Troubleshooting
 

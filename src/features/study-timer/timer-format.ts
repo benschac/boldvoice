@@ -1,9 +1,18 @@
 import type { SessionSnapshot } from "./study-timer.types";
 
+export function focusProgress(
+  elapsedMs: number,
+  goalDurationMs: number,
+): number {
+  "worklet";
+  return Math.min(1, Math.max(0, elapsedMs / goalDurationMs));
+}
+
 export function elapsedMilliseconds(
   session: SessionSnapshot,
   nowMs: number,
 ): number {
+  "worklet";
   return (
     session.accumulatedMs +
     (session.phase === "running"
