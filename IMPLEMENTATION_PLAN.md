@@ -1,6 +1,6 @@
 # Study timer implementation plan and Graphite stack
 
-Status: D1 and D2 verified, 2026-09-28; D3 acceptance remains in progress. This deliverable decomposes [REQUIREMENTS.md](REQUIREMENTS.md). Read [TECHNICAL_REQUIREMENTS.md](TECHNICAL_REQUIREMENTS.md) for the contract and the documented assumptions. Architecture, data relationships, lifecycle, and stack diagrams are embedded below.
+Status: D1–D3 implemented, reviewed, and verified on the simulator, 2026-09-28. This deliverable decomposes [REQUIREMENTS.md](REQUIREMENTS.md). Read [TECHNICAL_REQUIREMENTS.md](TECHNICAL_REQUIREMENTS.md) for the contract and the documented assumptions. Architecture, data relationships, lifecycle, and stack diagrams are embedded below.
 
 ## Delivery principle
 
@@ -11,16 +11,16 @@ Build in dependency order: fix the baseline, prove the native build path with a 
 Two adversarial reviews shaped this plan. Current decisions:
 
 1. **Simple persistence.** One snapshot file, one write per transition, and that write is the commit point. No intent log, no stopping phase, no reset flow. Stop deletes the snapshot before ending activities, so a crash leaves only an orphan activity.
-2. **One reconciliation rule.** At launch, foreground, and every Start: end every activity of this module's type that does not match the stored session. This is the zero-zombie guarantee.
+2. **One reconciliation rule.** At launch, foreground, explicit retry, and before creating a new session, keep at most one activity matching the stored session and end the others. Unconfirmed cleanup stays visible and retries on the next reconciliation.
 3. **Corrupt storage is discarded** with a warning, after ending activities. A study timer does not justify a recovery UI.
 4. **Native generates session IDs.** The activity's attributes carry the session ID, so no activity ID is persisted.
 5. **Never auto-recreate a missing activity.** It may have been dismissed by the user; retry is explicit and in the foreground.
 6. **Mirror ActivityKit's real API:** `request` throws; `update`/`end` do not. API completion is not proof of rendering.
 7. **D1 requests a real activity from the module** and proves it renders in the extension, since the app and the extension compile the attributes into separate Swift modules.
-8. **Fix the baseline first:** `expo-doctor` currently fails on duplicate packages, and `app.json` lacks `ios.bundleIdentifier`.
+8. **Fix the baseline first.** D1 resolved duplicate packages with Bun's hoisted linker and a React Native version override. Doctor passed 20/20 checks, and `app.json` now has `ios.bundleIdentifier`.
 9. **Own config plugin** for the widget target, no `@bacons/apple-targets`; ask before adding it if the plugin blocks D1.
-10. **Three implementation diffs**, and the default branch must contain the working app at submission.
-11. **Inline Expo module** in `apps/mobile/native/StudyTimer` instead of a `create-expo-module` package: no scaffold, podspec, rename, or autolinking step. Macro discovery is a D1 spike with a DSL fallback. See [Native build ownership](TECHNICAL_REQUIREMENTS.md#native-build-ownership) for the layout rules.
+10. **Three local implementation diffs.** This run ends with a working app, a local stack, and reviewer instructions. Publication and merging are excluded.
+11. **Inline Expo module** in `apps/mobile/native/StudyTimer` instead of a `create-expo-module` package: no scaffold, podspec, rename, or autolinking step. The D1 macro spike failed because the app target could not load the compiler plugin. The verified implementation uses the planned DSL fallback. See [Native build ownership](TECHNICAL_REQUIREMENTS.md#native-build-ownership) for the layout rules.
 
 Platform limits the plan accepts (timer text format, Island width, minimal trigger, eight-hour limit, latency measurement) are listed in [Documented assumptions](TECHNICAL_REQUIREMENTS.md#documented-assumptions).
 
@@ -28,13 +28,13 @@ Platform limits the plan accepts (timer text format, Island width, minimal trigg
 
 Keep one lead responsible for the contract, integration, acceptance evidence, and Git/Graphite operations. Use bounded subagents when independent work materially improves delivery; do not create a separate chat for every phase. Preserve D1 → D2 → D3 delivery and their gates. D1's real native activity proof precedes substantial parallel implementation; later work can be prepared independently only against an established contract and cannot be accepted before its dependencies pass.
 
-| Workstream               | Ownership                                                                                            | Skill guidance                                                                                                                                                                                                |
-| ------------------------ | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lead                     | Shared contract and configuration decisions, integration, stack operations, final verification       | Read this plan, `TECHNICAL_REQUIREMENTS.md`, and applicable `AGENTS.md` instructions before assigning work                                                                                                    |
-| Native worker — D1       | Swift module, coordinator, store, config plugin, minimal widget, native tests, and native generation | Repository [write-swift](.agents/skills/write-swift/SKILL.md); Expo module, Swift concurrency, and Swift Testing skills when available                                                                        |
-| React Native worker — D2 | Screen, hook, formatting, UI tests, and consumption of the agreed bridge                             | Repository [react-native-best-practices](.agents/skills/react-native-best-practices/SKILL.md) and [typescript-advanced-types](.agents/skills/typescript-advanced-types/SKILL.md), applied only where relevant |
-| Presentation worker — D3 | Widget layouts and accessibility after explicit handoff of widget files from the native worker       | Repository `write-swift`; SwiftUI guidance when available                                                                                                                                                     |
-| Independent reviewer     | Read-only audit of the integrated diff against requirements, including lifecycle races and test gaps | Relevant Swift concurrency, Swift Testing, SwiftUI, and repository skills; return evidence-backed findings to the lead                                                                                        |
+| Workstream               | Ownership                                                                                                                                             | Skill guidance                                                                                                                                                                                                |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lead                     | Shared contract and configuration decisions, integration, stack operations, serialized native generation and simulator operations, final verification | Read this plan, `TECHNICAL_REQUIREMENTS.md`, and applicable `AGENTS.md` instructions before assigning work                                                                                                    |
+| Native worker, D1        | Swift module, coordinator, store, config plugin, minimal widget, and native tests                                                                     | Repository [write-swift](.agents/skills/write-swift/SKILL.md); Expo module, Swift concurrency, and Swift Testing skills when available                                                                        |
+| React Native worker — D2 | Screen, hook, formatting, UI tests, and consumption of the agreed bridge                                                                              | Repository [react-native-best-practices](.agents/skills/react-native-best-practices/SKILL.md) and [typescript-advanced-types](.agents/skills/typescript-advanced-types/SKILL.md), applied only where relevant |
+| Presentation worker — D3 | Widget layouts and accessibility after explicit handoff of widget files from the native worker                                                        | Repository `write-swift`; SwiftUI guidance when available                                                                                                                                                     |
+| Independent reviewer     | Read-only audit of the integrated diff against requirements, including lifecycle races and test gaps                                                  | Relevant Swift concurrency, Swift Testing, SwiftUI, and repository skills; return evidence-backed findings to the lead                                                                                        |
 
 Environment-provided skills are optional supplements, not checkout prerequisites. Read a selected skill before applying it; use current official documentation when a supplement is unavailable. Skills do not override the repository contract or authorize dependency additions, toolchain upgrades, or unrelated refactors. Check Swift guidance against the actual compiler, language mode, and build settings. Follow `apps/mobile/AGENTS.md` for SDK-matched Expo documentation, and consult current Apple documentation for ActivityKit and WidgetKit behavior. Prefer simple bridge types and measured performance fixes over speculative abstractions or optimization.
 
@@ -107,12 +107,12 @@ References: [Expo SQLite](https://docs.expo.dev/versions/v58.0.0/sdk/sqlite/), [
 
 - Store `session.json` under the app's Application Support `StudyTimer` directory, not a cache or temporary directory.
 - Encode `{ schemaVersion: 1, session }`. Replace the whole file atomically on transitions; no per-second writes.
-- Missing file means idle. Invalid JSON or an unsupported schema is discarded after ending activities, returning `SESSION_DISCARDED`. An I/O read failure rejects with `PERSISTENCE_FAILED` and deletes nothing.
+- Missing file means idle. Invalid JSON, an unsupported schema, or invalid snapshot values are discarded after attempting activity cleanup. Return `SESSION_DISCARDED` when cleanup is confirmed; prioritize `ACTIVITY_CLEANUP_UNCONFIRMED` if an activity survives. An I/O read failure rejects with `PERSISTENCE_FAILED` and deletes nothing.
 - Test the real file store in a temporary directory: round trip, missing file, corrupt data, unsupported schema, and a failed write.
 
 ## Local delivery stack
 
-Verified local base: `main → chore/project-skills → docs/study-timer-plan`. D0 and D1 exist; D2 has passed its gates and is ready for its local branch. D3 remains planned and will be created after its gates pass. This run is local only: do not publish or merge.
+The completed local stack is `main → chore/project-skills → docs/study-timer-plan → feat/study-timer-native → feat/study-timer-screen → feat/study-timer-live-surfaces`. D1 is commit `aba2dd2`; D2 is commit `c0f8731`. D3 passed its visual, timing, and clean-setup gates before branch creation. The subsequent publishing request authorizes pushing this stack and opening stacked pull requests in `benschac/boldvoice`; merging remains excluded.
 
 | Diff / branch                       | Parent                 | Commit / PR title                                                   | Scope                                                                            | Gate                                                                                     |
 | ----------------------------------- | ---------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -216,7 +216,7 @@ flowchart LR
 
 ## D0 — Design and review boundaries
 
-Publish the original requirements alongside these design documents so relative links work. `REQUIREMENTS.md` stays as the challenge text; links to the design documents live in the root README. Add `TECHNICAL_REQUIREMENTS.md` and `IMPLEMENTATION_PLAN.md`, including the embedded diagrams.
+Keep the original requirements alongside these design documents so relative links work. `REQUIREMENTS.md` stays as the challenge text; links to the design documents live in the root README. D0 added `TECHNICAL_REQUIREMENTS.md` and `IMPLEMENTATION_PLAN.md`, including the embedded diagrams.
 
 Review the one-session rule, native ownership, count-up behavior, the documented assumptions, and failure semantics before implementation. This diff changes documentation only.
 
@@ -224,10 +224,12 @@ Review the one-session rule, native ownership, count-up behavior, the documented
 
 ### Step zero: baseline
 
-1. From `apps/mobile`, run `bunx expo-doctor`. At planning time it fails on duplicate copies of `expo`, `expo-constants`, `expo-font`, `expo-glass-effect`, `expo-linking`, `@expo/dom-webview`, and `@expo/log-box`.
-2. Follow its advice: delete every `node_modules` folder in the workspace and run `bun install` from the root. If duplicates persist, regenerate `bun.lock` and review the lockfile diff. Run `bunx expo install --check` for version ranges. Rerun `expo-doctor` until it passes, and confirm only one `react-native` version remains installed. Record any peer warning that is accepted (for example, the `react-native-worklets` range).
-3. Set `ios.bundleIdentifier` in `app.json`; the extension uses `<app id>.StudyTimerWidget`.
-4. Build and launch the untouched starter with `bunx expo run:ios` on a Dynamic Island simulator. Record the SDK, Xcode, simulator, and commands. Any later build failure is then attributable to our changes.
+D1 completed this baseline gate before native implementation. Keep these checks in the setup runbook:
+
+1. From `apps/mobile`, run `bunx expo-doctor` and `bunx expo install --check`. Both passed after the dependency repair.
+2. Use the committed hoisted-linker configuration, React Native override, and lockfile. A clean install with the original lockfile still produced duplicates; reinstalling alone did not fix them. The acceptance log records the remaining preview worklets peer-range warning and the native build result.
+3. Preserve `ios.bundleIdentifier` in `app.json`; the extension uses `<app id>.StudyTimerWidget`.
+4. Record native build and launch evidence on the selected Dynamic Island simulator. D1 built and rendered the untouched starter before adding the timer; subsequent build and runtime checks are recorded separately.
 
 ### Checkpoint A: a real activity renders
 
@@ -236,8 +238,8 @@ File layout for this checkpoint is defined in [Native build ownership](TECHNICAL
 1. Enable inline modules: set `experiments.inlineModules.watchedDirectories` to `["native/StudyTimer"]` in `app.json`.
 2. **Macro discovery spike.** Add `native/StudyTimer/StudyTimerModule.swift` using `@ExpoModule` with one async `@JS` method, plus an empty `func definition() -> ModuleDefinition {}` so inline discovery registers it. Run `bunx expo prebuild`, build, and call it from JS with `requireNativeModule('StudyTimerModule')`. If it does not register or the macro fails, record the exact error and rewrite the module with DSL `AsyncFunction`s inside `definition()`. Either way, the TypeScript facade in `src/features/study-timer` is the only JS entry point.
 3. Add `native/Shared/StudyTimerAttributes.swift` and a minimal `start`/`stop` in the module that calls `Activity.request` and `end`. These become the real methods, not temporary fixtures.
-4. Add `apps/mobile/widgets/study-timer/StudyTimerLiveActivity.swift` and a widget bundle with a minimal `ActivityConfiguration` using `Text(timerInterval:pauseTime:countsDown:)`.
-5. Implement `apps/mobile/plugins/with-study-timer.js` with SDK-compatible config APIs: extension target, widget sources, `StudyTimerAttributes.swift` membership in both the app and the widget target, embed phase, identifiers, deployment target (at least iOS 16.2), and `NSSupportsLiveActivities`. Wire it in `app.json` and add a native-build script (prebuild, then `expo run:ios`) separate from Metro startup.
+4. Add `apps/mobile/widgets/study-timer/StudyTimerWidget.swift` with the widget bundle and a minimal `ActivityConfiguration` using `Text(timerInterval:pauseTime:countsDown:)`.
+5. Implement `apps/mobile/plugins/with-study-timer.js` with SDK-compatible config APIs: extension target, widget sources, `StudyTimerAttributes.swift` membership in both the app and the widget target, embed phase, identifiers, iOS 16.4 deployment target, and `NSSupportsLiveActivities`. Wire it in `app.json` and add a native-build script (prebuild, then `expo run:ios`) separate from Metro startup.
 6. Create `native/Package.swift` with a core target at `StudyTimer/Core` and a first timer-math test in `Tests/StudyTimerCoreTests`.
 
 Gate A:
@@ -267,7 +269,7 @@ Run the smoke through a saved Argent flow if the trial above succeeds; otherwise
 
 ## D2 — Connect the React Native timer
 
-Proposed owners: `apps/mobile/src/app/index.tsx`, `src/features/study-timer/use-study-timer.ts`, `timer-format.ts`, and feature components. Remove or adjust starter navigation only where needed for this screen.
+Implementation files include `apps/mobile/src/app/index.tsx`, `src/features/study-timer/use-study-timer.ts`, `timer-format.ts`, and feature components. D2 replaced the starter navigation with the timer screen.
 
 Add a custom-name form, HH:MM:SS elapsed display, Pause/Resume, Stop, and Start New Session when idle. Render native-returned snapshots; UI ticks are presentation only. Disable controls while a command is pending. Show validation errors inline. For `PERSISTENCE_FAILED` or uncoded rejections, refresh with `getSession` before showing state. Show warnings (`unavailable`, `missing`, discarded session, unconfirmed cleanup) next to the snapshot they came with, with Retry for a missing or unavailable activity. Fetch capabilities and session at launch and on return to foreground. Unsupported platforms render a message without importing the iOS module.
 
@@ -278,6 +280,8 @@ With verified Argent support, save these interactions as replayable flows and re
 ## D3 — Live surfaces and reviewer handoff
 
 Extend the widget: Lock Screen name and elapsed; compact truncated name plus time; expanded full bounded name, time, and goal ring; minimal elapsed. Use the system timer text with explicit frames in compact and minimal regions. Keep a clear paused indicator and ensure the goal ring does not imply a countdown.
+
+The current widget implements these layouts. Its running goal ring uses timer-driven `ProgressView`; its paused ring uses clamped `Circle.trim`. The acceptance log records the observed visual and timing results for the gates below.
 
 Add `docs/acceptance/study-timer.md` with environment, steps, expected and observed results, and evidence paths. Update the root README with commands an unfamiliar reviewer (or an LLM) can run non-interactively: prerequisites, install, `expo-doctor`, custom native build, Metro, simulator selection, plugin regeneration, troubleshooting, and test commands. Never describe the web export command as an iOS build.
 
@@ -300,16 +304,16 @@ Include brief discussion notes on architecture, the hardest integration issue, i
 
 ## Submission
 
-Reviewers clone the default branch, so it must contain the complete working app. After the stack passes its gates and the user approves, merge it into `main` bottom-up; publishing PRs alone does not satisfy submission. Merging needs explicit approval.
+The implementation run delivered the working app and reviewer instructions locally. The subsequent user request authorizes publishing the completed stack as GitHub pull requests through Graphite. Moving the app to the default branch by merging still requires a separate request.
 
 ## Graphite MCP: local completed diffs
 
-Verified on 2026-09-28: `gt log short` shows `main → chore/project-skills → docs/study-timer-plan`; no remote is configured. The user authorized D1–D3 locally and explicitly prohibited publishing or merging.
+The local stack on 2026-09-28 contains completed D1–D3 branches above `docs/study-timer-plan`, as listed in [Local delivery stack](#local-delivery-stack). The configured remote is `git@github.com:benschac/boldvoice.git`. The implementation was completed under a local-only instruction; the subsequent user request authorizes publishing the full stack, with no merge.
 
-For each slice, confirm the current branch is its completed parent, implement and pass its gate, review and fix findings, then stage only owned paths. Audit `git diff --cached --name-status`, `--stat`, and `--check`. Use Graphite MCP `gt create <planned branch> --message <title> --no-interactive`, then verify its parent and committed boundary. Do not create placeholder branches or run `gt submit`, `git push`, merge, or broad `gt sync`. Fix feedback with scoped staging and `gt modify`, restacking descendants and rerunning affected checks when needed.
+For each slice, confirm the current branch is its completed parent, implement and pass its gate, review and fix findings, then stage only owned paths. Audit `git diff --cached --name-status`, `--stat`, and `--check`. Use Graphite MCP `gt create <planned branch> --message <title> --no-interactive`, then verify its parent and committed boundary. Do not create placeholder branches, merge, or run broad `gt sync`. Publish the authorized stack with Graphite MCP `gt submit --stack --no-interactive`. Fix feedback with scoped staging and `gt modify`, restacking descendants and rerunning affected checks when needed.
 
 ## Timebox and stopping rules
 
 The challenge suggests 2–3 hours. Treat that as a target, not proof that native tooling will cooperate. Prioritize D1's Checkpoint A over everything else, then the lifecycle, then styling. Do not cut Dynamic Island or zombie handling and still claim all requirements passed. Log build and tooling delays separately. Defer themes, analytics, history, cloud sync, and lock-screen controls.
 
-Current completion: D1 native lifecycle and D2 screen gates, independent reviews, and fixes passed. D3 system presentation and acceptance remain open. See docs/acceptance/study-timer.md. Publication and merge are excluded from this run.
+Current completion: D1 native lifecycle, D2 screen, and D3 system presentation gates passed with independent reviews and fixes. See [actual acceptance evidence](docs/acceptance/study-timer.md), including measured simulator timing and clean setup. Physical-device and VoiceOver navigation checks remain unrun. Publication is authorized by the subsequent user request; merge remains excluded.

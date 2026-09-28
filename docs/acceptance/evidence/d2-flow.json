@@ -1,0 +1,453 @@
+{
+  "flow": "d2-lifecycle",
+  "device": "17B7C9FD-C6DF-4248-9485-0F89AC405A97",
+  "executionPrerequisite": "",
+  "ok": true,
+  "passed": 47,
+  "failed": 0,
+  "skipped": 0,
+  "errored": 0,
+  "steps": [
+    {
+      "index": 0,
+      "kind": "echo",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "message": "Requires the installed iOS build, Metro, and enabled Live Activities. Stops any existing study session before testing.",
+      "durationMs": 1
+    },
+    {
+      "index": 1,
+      "kind": "launch",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "durationMs": 1940
+    },
+    {
+      "index": 2,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "visible \"Study timer\"",
+      "status": "pass",
+      "durationMs": 2447
+    },
+    {
+      "index": 3,
+      "kind": "idle",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "durationMs": 753
+    },
+    {
+      "index": 4,
+      "kind": "when",
+      "flow": "d2-lifecycle",
+      "target": "exists id=timer-stop",
+      "status": "pass",
+      "reason": "condition met (exists id=\"timer-stop\")",
+      "durationMs": 7
+    },
+    {
+      "index": 5,
+      "kind": "scroll-to",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-stop",
+      "depth": 1,
+      "status": "pass",
+      "durationMs": 522
+    },
+    {
+      "index": 6,
+      "kind": "tap",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-stop",
+      "depth": 1,
+      "status": "pass",
+      "durationMs": 321
+    },
+    {
+      "index": 7,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "exists id=timer-name-input",
+      "depth": 1,
+      "status": "pass",
+      "durationMs": 313
+    },
+    {
+      "index": 8,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "hidden id=timer-stop",
+      "depth": 1,
+      "status": "pass",
+      "durationMs": 9
+    },
+    {
+      "index": 9,
+      "kind": "echo",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "message": "Restart after cleanup to reset the unpersisted name input and scroll position.",
+      "durationMs": 0
+    },
+    {
+      "index": 10,
+      "kind": "launch",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "durationMs": 1929
+    },
+    {
+      "index": 11,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "visible id=timer-name-input",
+      "status": "pass",
+      "durationMs": 2163
+    },
+    {
+      "index": 12,
+      "kind": "idle",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "durationMs": 488
+    },
+    {
+      "index": 13,
+      "kind": "echo",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "message": "Blank names show validation and leave the app idle.",
+      "durationMs": 1
+    },
+    {
+      "index": 14,
+      "kind": "scroll-to",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-start",
+      "status": "pass",
+      "durationMs": 265
+    },
+    {
+      "index": 15,
+      "kind": "tap",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-start",
+      "status": "pass",
+      "durationMs": 323
+    },
+    {
+      "index": 16,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-error equals \"Enter a session name.\"",
+      "status": "pass",
+      "durationMs": 314
+    },
+    {
+      "index": 17,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "visible id=timer-name-input",
+      "status": "pass",
+      "durationMs": 5
+    },
+    {
+      "index": 18,
+      "kind": "echo",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "message": "Submit a custom name with the keyboard Done action.",
+      "durationMs": 0
+    },
+    {
+      "index": 19,
+      "kind": "scroll-to",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-name-input (up)",
+      "status": "pass",
+      "durationMs": 266
+    },
+    {
+      "index": 20,
+      "kind": "type",
+      "flow": "d2-lifecycle",
+      "target": "into id=timer-name-input ← \"Argent Chapter Review\"",
+      "status": "pass",
+      "durationMs": 3143
+    },
+    {
+      "index": 21,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "visible id=timer-session-name",
+      "status": "pass",
+      "durationMs": 365
+    },
+    {
+      "index": 22,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-session-name equals \"Argent Chapter Review\"",
+      "status": "pass",
+      "durationMs": 5
+    },
+    {
+      "index": 23,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-phase equals \"IN PROGRESS\"",
+      "status": "pass",
+      "durationMs": 11
+    },
+    {
+      "index": 24,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-activity-status equals \"Live Activity active\"",
+      "status": "pass",
+      "durationMs": 9
+    },
+    {
+      "index": 25,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "hidden id=timer-name-input",
+      "status": "pass",
+      "durationMs": 8
+    },
+    {
+      "index": 26,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "hidden id=timer-error",
+      "status": "pass",
+      "durationMs": 6
+    },
+    {
+      "index": 27,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-elapsed matches /^(?:Elapsed time )?(?!00:00:00)\\d{2,}:\\d{2}:\\d{2}$/",
+      "status": "pass",
+      "durationMs": 936
+    },
+    {
+      "index": 28,
+      "kind": "echo",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "message": "Pause and assert the native-returned phase and controls.",
+      "durationMs": 0
+    },
+    {
+      "index": 29,
+      "kind": "scroll-to",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-pause",
+      "status": "pass",
+      "durationMs": 275
+    },
+    {
+      "index": 30,
+      "kind": "tap",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-pause",
+      "status": "pass",
+      "durationMs": 331
+    },
+    {
+      "index": 31,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-phase equals \"PAUSED\"",
+      "status": "pass",
+      "durationMs": 316
+    },
+    {
+      "index": 32,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "visible id=timer-resume",
+      "status": "pass",
+      "durationMs": 5
+    },
+    {
+      "index": 33,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "hidden id=timer-pause",
+      "status": "pass",
+      "durationMs": 8
+    },
+    {
+      "index": 34,
+      "kind": "wait",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "durationMs": 10001
+    },
+    {
+      "index": 35,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-phase equals \"PAUSED\"",
+      "status": "pass",
+      "durationMs": 13
+    },
+    {
+      "index": 36,
+      "kind": "echo",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "message": "The ten-second phase assertion does not compare elapsed values; frozen-time proof needs the retained recording.",
+      "durationMs": 0
+    },
+    {
+      "index": 37,
+      "kind": "scroll-to",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-resume",
+      "status": "pass",
+      "durationMs": 274
+    },
+    {
+      "index": 38,
+      "kind": "tap",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-resume",
+      "status": "pass",
+      "durationMs": 319
+    },
+    {
+      "index": 39,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-phase equals \"IN PROGRESS\"",
+      "status": "pass",
+      "durationMs": 317
+    },
+    {
+      "index": 40,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "visible id=timer-pause",
+      "status": "pass",
+      "durationMs": 7
+    },
+    {
+      "index": 41,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "hidden id=timer-resume",
+      "status": "pass",
+      "durationMs": 5
+    },
+    {
+      "index": 42,
+      "kind": "echo",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "message": "Stop and verify the new-session form replaces the active session.",
+      "durationMs": 0
+    },
+    {
+      "index": 43,
+      "kind": "scroll-to",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-stop",
+      "status": "pass",
+      "durationMs": 266
+    },
+    {
+      "index": 44,
+      "kind": "tap",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-stop",
+      "status": "pass",
+      "durationMs": 324
+    },
+    {
+      "index": 45,
+      "kind": "await",
+      "flow": "d2-lifecycle",
+      "target": "exists id=timer-name-input",
+      "status": "pass",
+      "durationMs": 319
+    },
+    {
+      "index": 46,
+      "kind": "scroll-to",
+      "flow": "d2-lifecycle",
+      "target": "id=timer-name-input (up)",
+      "status": "pass",
+      "durationMs": 269
+    },
+    {
+      "index": 47,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "visible id=timer-name-input",
+      "status": "pass",
+      "durationMs": 7
+    },
+    {
+      "index": 48,
+      "kind": "idle",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "durationMs": 473
+    },
+    {
+      "index": 49,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "visible id=timer-start",
+      "status": "pass",
+      "durationMs": 9
+    },
+    {
+      "index": 50,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "hidden id=timer-session-name",
+      "status": "pass",
+      "durationMs": 8
+    },
+    {
+      "index": 51,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "hidden id=timer-stop",
+      "status": "pass",
+      "durationMs": 6
+    },
+    {
+      "index": 52,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "hidden id=timer-error",
+      "status": "pass",
+      "durationMs": 5
+    },
+    {
+      "index": 53,
+      "kind": "assert",
+      "flow": "d2-lifecycle",
+      "target": "hidden id=timer-warning",
+      "status": "pass",
+      "durationMs": 8
+    },
+    {
+      "index": 54,
+      "kind": "echo",
+      "flow": "d2-lifecycle",
+      "status": "pass",
+      "message": "App lifecycle checks finished. Inspect the system separately for Live Activity disappearance.",
+      "durationMs": 0
+    }
+  ],
+  "startedAt": 1790615339085,
+  "durationMs": 30768
+}
