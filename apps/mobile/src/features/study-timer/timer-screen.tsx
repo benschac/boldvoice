@@ -1,95 +1,27 @@
+import { Image } from "expo-image";
+import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   useColorScheme,
+  useWindowDimensions,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, { FadeIn, ReduceMotion } from "react-native-reanimated";
+import {
+  KeyboardAwareScrollView,
+  useKeyboardState,
+} from "react-native-keyboard-controller";
 
 import type { SessionSnapshot } from "./study-timer.types";
+import { TimerButton } from "./timer-button";
 import { elapsedMilliseconds, formatElapsed } from "./timer-format";
+import { timerPalettes, type TimerPalette } from "./timer-theme";
 import { useStudyTimer } from "./use-study-timer";
-
-const palettes = {
-  light: {
-    background: "#F5F3EE",
-    card: "#FFFFFF",
-    text: "#202A25",
-    secondary: "#536158",
-    accent: "#245740",
-    onAccent: "#FFFFFF",
-    border: "#CAD1CB",
-    warning: "#FFF0CE",
-    warningText: "#694600",
-    danger: "#A32626",
-  },
-  dark: {
-    background: "#141B17",
-    card: "#202C24",
-    text: "#F3F5EF",
-    secondary: "#B3C0B7",
-    accent: "#B6E3C3",
-    onAccent: "#163421",
-    border: "#4B5E51",
-    warning: "#40341D",
-    warningText: "#FFDA87",
-    danger: "#FFA9A9",
-  },
-};
-
-type Palette = typeof palettes.light;
-
-function TimerButton({
-  label,
-  onPress,
-  disabled,
-  secondary = false,
-  colors,
-  testID,
-}: {
-  label: string;
-  onPress: () => void;
-  disabled: boolean;
-  secondary?: boolean;
-  colors: Palette;
-  testID: string;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={{ disabled }}
-      testID={testID}
-      disabled={disabled}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.button,
-        {
-          backgroundColor: secondary ? colors.card : colors.accent,
-          borderColor: secondary ? colors.border : colors.accent,
-          opacity: disabled ? 0.5 : pressed ? 0.75 : 1,
-        },
-      ]}
-    >
-      <Text
-        style={[
-          styles.buttonText,
-          { color: secondary ? colors.text : colors.onAccent },
-        ]}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
 
 function ElapsedTime({
   session,
@@ -98,7 +30,7 @@ function ElapsedTime({
 }: {
   session: SessionSnapshot;
   foreground: boolean;
-  colors: Palette;
+  colors: TimerPalette;
 }) {
   const [now, setNow] = useState(Date.now);
   useEffect(() => {
@@ -109,6 +41,7 @@ function ElapsedTime({
   const formatted = formatElapsed(elapsedMilliseconds(session, now));
   return (
     <Text
+      selectable
       testID="timer-elapsed"
       accessibilityLabel={`Elapsed time ${formatted}`}
       adjustsFontSizeToFit
@@ -124,7 +57,13 @@ function ElapsedTime({
 export function TimerScreen() {
   const timer = useStudyTimer();
   const [name, setName] = useState("");
-  const colors = palettes[useColorScheme() === "dark" ? "dark" : "light"];
+  const [inputFocused, setInputFocused] = useState(false);
+  const [formFooterHeight, setFormFooterHeight] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [inputHeight, setInputHeight] = useState(0);
+  const keyboardHeight = useKeyboardState((state) => state.height);
+  const colors = timerPalettes[useColorScheme() === "dark" ? "dark" : "light"];
+  const { fontScale } = useWindowDimensions();
   const session = timer.result?.session;
   const warning = timer.result?.warning;
   const disabled = timer.pending !== null || !timer.foreground;
@@ -133,94 +72,141 @@ export function TimerScreen() {
     void timer.start(name);
   };
   const activityUnavailable = session && session.activityStatus !== "active";
+  const keyboardClearance = Math.min(
+    formFooterHeight + 56,
+    Math.max(0, viewportHeight - keyboardHeight - inputHeight - 32),
+  );
 
   return (
-    <SafeAreaView
-      style={[styles.safeArea, { backgroundColor: colors.background }]}
-    >
-      <KeyboardAvoidingView
-        style={styles.safeArea}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+    <>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          title: "Study timer",
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.text,
+          headerTitleStyle: { fontWeight: "600" },
+          contentStyle: { backgroundColor: colors.background },
+        }}
+      />
+      <KeyboardAwareScrollView
+        style={{ backgroundColor: colors.background }}
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic"
+        bottomOffset={keyboardClearance}
+        onLayout={({ nativeEvent }) =>
+          setViewportHeight(nativeEvent.layout.height)
+        }
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
       >
-        <ScrollView
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-        >
-          <View style={styles.heading}>
-            <Text style={[styles.eyebrow, { color: colors.secondary }]}>
-              ONE SESSION AT A TIME
-            </Text>
+        {timer.capabilities?.supported === false ? (
+          <View style={[styles.card, { backgroundColor: colors.card }]}>
             <Text
               accessibilityRole="header"
-              style={[styles.title, { color: colors.text }]}
+              style={[styles.sectionTitle, { color: colors.text }]}
             >
-              Study timer
+              An iPhone is required
             </Text>
             <Text style={[styles.body, { color: colors.secondary }]}>
-              Make time for what you want to learn.
+              Study Timer uses iOS Live Activities. Open the iOS development
+              build to start a session.
             </Text>
           </View>
-
-          {timer.capabilities?.supported === false ? (
-            <View style={[styles.card, { backgroundColor: colors.card }]}>
-              <Text
-                accessibilityRole="header"
-                style={[styles.sectionTitle, { color: colors.text }]}
-              >
-                An iPhone is required
-              </Text>
-              <Text style={[styles.body, { color: colors.secondary }]}>
-                Study Timer uses iOS Live Activities. Open the iOS development
-                build to start a session.
-              </Text>
-            </View>
-          ) : timer.result === null ? (
-            <View style={[styles.card, { backgroundColor: colors.card }]}>
-              <Text style={[styles.body, { color: colors.text }]}>
-                {timer.pending
-                  ? "Loading your session…"
-                  : "Session unavailable"}
-              </Text>
-              {!timer.pending && (
-                <TimerButton
-                  label="Refresh session"
-                  testID="timer-refresh"
-                  onPress={() => {
-                    void timer.refresh();
-                  }}
-                  disabled={false}
-                  colors={colors}
-                />
-              )}
-            </View>
-          ) : session ? (
-            <View style={[styles.card, { backgroundColor: colors.card }]}>
+        ) : timer.result === null ? (
+          <View style={[styles.card, { backgroundColor: colors.card }]}>
+            <Text style={[styles.body, { color: colors.text }]}>
+              {timer.pending ? "Loading your session…" : "Session unavailable"}
+            </Text>
+            {!timer.pending && (
+              <TimerButton
+                label="Refresh session"
+                testID="timer-refresh"
+                onPress={() => {
+                  void timer.refresh();
+                }}
+                disabled={false}
+                colors={colors}
+                symbol="arrow.clockwise"
+              />
+            )}
+          </View>
+        ) : session ? (
+          <Animated.View
+            key={session.sessionId}
+            entering={FadeIn.duration(180).reduceMotion(ReduceMotion.System)}
+            style={styles.session}
+          >
+            <View
+              style={[
+                styles.phase,
+                {
+                  backgroundColor:
+                    session.phase === "paused" ? colors.warning : colors.subtle,
+                },
+              ]}
+            >
+              <Image
+                source={
+                  session.phase === "running"
+                    ? "sf:book.closed"
+                    : "sf:pause.fill"
+                }
+                tintColor={
+                  session.phase === "paused"
+                    ? colors.warningText
+                    : colors.accent
+                }
+                style={styles.smallIcon}
+                accessible={false}
+              />
               <Text
                 testID="timer-phase"
-                style={[styles.eyebrow, { color: colors.secondary }]}
+                style={[
+                  styles.phaseText,
+                  {
+                    color:
+                      session.phase === "paused"
+                        ? colors.warningText
+                        : colors.accent,
+                  },
+                ]}
               >
                 {session.phase === "running" ? "IN PROGRESS" : "PAUSED"}
               </Text>
-              <Text
-                testID="timer-session-name"
-                accessibilityRole="header"
-                style={[styles.sessionName, { color: colors.text }]}
-              >
-                {session.name}
-              </Text>
+            </View>
+            <Text
+              selectable
+              testID="timer-session-name"
+              accessibilityRole="header"
+              style={[styles.sessionName, { color: colors.text }]}
+            >
+              {session.name}
+            </Text>
+            <View style={styles.clock}>
               <ElapsedTime
                 key={`${session.sessionId}:${session.runningSinceMs}:${timer.foreground}`}
                 session={session}
                 foreground={timer.foreground}
                 colors={colors}
               />
-              <Text style={[styles.caption, { color: colors.secondary }]}>
-                Hours · minutes · seconds
+              <Text style={[styles.timeLegend, { color: colors.secondary }]}>
+                hours · minutes · seconds
               </Text>
-              <View style={styles.controls}>
+            </View>
+            <View
+              style={[
+                styles.controls,
+                { flexDirection: fontScale > 1.3 ? "column" : "row" },
+              ]}
+            >
+              <View style={styles.control}>
                 <TimerButton
                   label={session.phase === "running" ? "Pause" : "Resume"}
+                  symbol={
+                    session.phase === "running" ? "pause.fill" : "play.fill"
+                  }
                   testID={
                     session.phase === "running" ? "timer-pause" : "timer-resume"
                   }
@@ -232,8 +218,11 @@ export function TimerScreen() {
                   disabled={disabled}
                   colors={colors}
                 />
+              </View>
+              <View style={styles.control}>
                 <TimerButton
-                  label="Stop session"
+                  label="Stop"
+                  symbol="stop.fill"
                   testID="timer-stop"
                   onPress={() => {
                     void timer.stop();
@@ -243,25 +232,49 @@ export function TimerScreen() {
                   colors={colors}
                 />
               </View>
+            </View>
+            <View style={[styles.goal, { borderColor: colors.border }]}>
+              <Text style={[styles.goalTitle, { color: colors.text }]}>
+                {session.goalDurationMs / 60_000}-minute focus goal
+              </Text>
               <Text
-                testID="timer-activity-status"
-                style={[styles.caption, { color: colors.secondary }]}
+                style={[
+                  styles.caption,
+                  { color: colors.secondary, textAlign: "center" },
+                ]}
               >
-                {session.activityStatus === "active"
-                  ? "Live Activity active"
-                  : session.activityStatus === "missing"
-                    ? "Live Activity missing"
-                    : "Live Activity unavailable"}
+                The Island ring marks your goal. Keep going as long as you like.
               </Text>
             </View>
-          ) : (
-            <View style={[styles.card, { backgroundColor: colors.card }]}>
+          </Animated.View>
+        ) : (
+          <Animated.View
+            key="new-session"
+            entering={FadeIn.duration(180).reduceMotion(ReduceMotion.System)}
+            style={styles.entry}
+          >
+            <View style={styles.intro}>
+              <View
+                style={[styles.bookMark, { backgroundColor: colors.subtle }]}
+              >
+                <Image
+                  source="sf:book.closed"
+                  tintColor={colors.accent}
+                  style={{ width: 30, height: 30 }}
+                  accessible={false}
+                />
+              </View>
               <Text
                 accessibilityRole="header"
-                style={[styles.sectionTitle, { color: colors.text }]}
+                style={[styles.title, { color: colors.text }]}
               >
-                Start a new session
+                Time to focus.
               </Text>
+              <Text style={[styles.body, { color: colors.secondary }]}>
+                One session. Your full attention.
+              </Text>
+            </View>
+            <View style={styles.form}>
               <Text style={[styles.label, { color: colors.text }]}>
                 What are you studying?
               </Text>
@@ -271,8 +284,14 @@ export function TimerScreen() {
                 accessibilityHint="Required, up to 80 characters. Appears on your Lock Screen."
                 value={name}
                 onChangeText={setName}
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
+                onLayout={({ nativeEvent }) =>
+                  setInputHeight(nativeEvent.layout.height)
+                }
                 placeholder="Chapter 5 Review"
                 placeholderTextColor={colors.secondary}
+                selectionColor={colors.accent}
                 editable={!disabled}
                 returnKeyType="done"
                 onSubmitEditing={start}
@@ -280,68 +299,95 @@ export function TimerScreen() {
                   styles.input,
                   {
                     color: colors.text,
-                    borderColor: colors.border,
-                    backgroundColor: colors.background,
+                    borderColor: inputFocused ? colors.accent : colors.border,
+                    backgroundColor: colors.card,
                   },
                 ]}
               />
-              <Text style={[styles.caption, { color: colors.secondary }]}>
-                Up to 80 characters. This name appears on your Lock Screen.
-              </Text>
+              <View
+                style={styles.form}
+                onLayout={({ nativeEvent }) =>
+                  setFormFooterHeight(nativeEvent.layout.height)
+                }
+              >
+                <Text style={[styles.caption, { color: colors.secondary }]}>
+                  Appears on your Lock Screen. Up to 80 characters.
+                </Text>
+                {timer.error && (
+                  <Text
+                    selectable
+                    accessibilityRole="alert"
+                    testID="timer-error"
+                    style={[styles.body, { color: colors.danger }]}
+                  >
+                    {timer.error}
+                  </Text>
+                )}
+                <View style={styles.startButton}>
+                  <TimerButton
+                    label="Start session"
+                    symbol="play.fill"
+                    testID="timer-start"
+                    onPress={start}
+                    disabled={disabled}
+                    colors={colors}
+                  />
+                </View>
+                {timer.capabilities?.activitiesEnabled === false && (
+                  <Text style={[styles.body, { color: colors.secondary }]}>
+                    Live Activities are disabled. Your timer will still run in
+                    the app.
+                  </Text>
+                )}
+              </View>
+            </View>
+          </Animated.View>
+        )}
+
+        {(warning || activityUnavailable) && (
+          <View style={[styles.notice, { backgroundColor: colors.warning }]}>
+            <Text
+              selectable
+              accessibilityRole="alert"
+              testID="timer-warning"
+              style={[styles.body, { color: colors.warningText }]}
+            >
+              {warning?.message ??
+                "The Live Activity is no longer visible. Your session is still saved."}
+            </Text>
+            {activityUnavailable && (
               <TimerButton
-                label="Start session"
-                testID="timer-start"
-                onPress={start}
+                label="Retry Live Activity"
+                symbol="arrow.clockwise"
+                testID="timer-retry"
+                onPress={() => {
+                  void timer.retry();
+                }}
                 disabled={disabled}
+                secondary
                 colors={colors}
               />
-              {timer.capabilities?.activitiesEnabled === false && (
-                <Text style={[styles.body, { color: colors.secondary }]}>
-                  Live Activities are disabled. Your timer will still run in the
-                  app.
-                </Text>
-              )}
-            </View>
-          )}
-
-          {(warning || activityUnavailable) && (
-            <View style={[styles.notice, { backgroundColor: colors.warning }]}>
-              <Text
-                accessibilityRole="alert"
-                testID="timer-warning"
-                style={[styles.body, { color: colors.warningText }]}
-              >
-                {warning?.message ??
-                  "The Live Activity is no longer visible. Your session is still saved."}
-              </Text>
-              {activityUnavailable && (
-                <TimerButton
-                  label="Retry Live Activity"
-                  testID="timer-retry"
-                  onPress={() => {
-                    void timer.retry();
-                  }}
-                  disabled={disabled}
-                  secondary
-                  colors={colors}
-                />
-              )}
-              {warning?.code === "ACTIVITY_CLEANUP_UNCONFIRMED" && (
-                <TimerButton
-                  label="Check again"
-                  testID="timer-cleanup-retry"
-                  onPress={() => {
-                    void timer.refresh();
-                  }}
-                  disabled={disabled}
-                  secondary
-                  colors={colors}
-                />
-              )}
-            </View>
-          )}
-          {timer.error && (
+            )}
+            {warning?.code === "ACTIVITY_CLEANUP_UNCONFIRMED" && (
+              <TimerButton
+                label="Check again"
+                testID="timer-cleanup-retry"
+                onPress={() => {
+                  void timer.refresh();
+                }}
+                disabled={disabled}
+                secondary
+                colors={colors}
+              />
+            )}
+          </View>
+        )}
+        {timer.error &&
+          (session ||
+            timer.result === null ||
+            timer.capabilities?.supported === false) && (
             <Text
+              selectable
               accessibilityRole="alert"
               testID="timer-error"
               style={[styles.body, { color: colors.danger }]}
@@ -349,79 +395,129 @@ export function TimerScreen() {
               {timer.error}
             </Text>
           )}
+        <View style={styles.pending} accessibilityLiveRegion="polite">
           {timer.pending && (
-            <View
-              style={styles.pending}
-              accessibilityLiveRegion="polite"
-              accessibilityLabel="Updating timer"
-            >
+            <>
               <ActivityIndicator color={colors.accent} />
               <Text style={[styles.caption, { color: colors.secondary }]}>
                 {timer.pending === "refresh"
                   ? "Checking session…"
                   : "Updating timer…"}
               </Text>
-            </View>
+            </>
           )}
-          <Text style={[styles.footer, { color: colors.secondary }]}>
-            Your timer keeps counting when you leave the app. Pause whenever you
-            need a break.
-          </Text>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </View>
+        {timer.capabilities?.supported && timer.result !== null && (
+          <View style={styles.footer}>
+            <Image
+              source="sf:lock.iphone"
+              tintColor={colors.secondary}
+              style={styles.footerIcon}
+              accessible={false}
+            />
+            <Text
+              testID={session ? "timer-activity-status" : undefined}
+              style={[styles.footerText, { color: colors.secondary }]}
+            >
+              {session
+                ? session.activityStatus === "active"
+                  ? "Live Activity active"
+                  : session.activityStatus === "missing"
+                    ? "Live Activity missing"
+                    : "Live Activity unavailable"
+                : "Keeps counting when you leave the app."}
+            </Text>
+          </View>
+        )}
+      </KeyboardAwareScrollView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1 },
   content: {
     flexGrow: 1,
-    padding: 24,
-    gap: 20,
+    padding: 28,
+    paddingBottom: 32,
+    gap: 24,
     width: "100%",
     maxWidth: 600,
     alignSelf: "center",
   },
-  heading: { gap: 10, paddingVertical: 16 },
-  eyebrow: { fontSize: 12, fontWeight: "700", letterSpacing: 1.5 },
-  title: { fontSize: 36, fontWeight: "700", letterSpacing: -1 },
-  sectionTitle: { fontSize: 23, fontWeight: "600" },
-  sessionName: { fontSize: 28, fontWeight: "600" },
-  body: { fontSize: 16, lineHeight: 24 },
-  caption: { fontSize: 14, lineHeight: 20 },
-  label: { fontSize: 16, fontWeight: "500" },
-  card: { padding: 24, borderRadius: 24, gap: 18 },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 14,
-    minHeight: 52,
-    fontSize: 18,
-  },
-  elapsed: {
-    fontSize: 48,
-    fontWeight: "600",
-    fontVariant: ["tabular-nums"],
-    letterSpacing: -1,
-  },
-  controls: { gap: 12, marginTop: 8 },
-  button: {
-    minHeight: 52,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderRadius: 14,
+  entry: { gap: 40 },
+  intro: { gap: 12, paddingTop: 20 },
+  bookMark: {
+    width: 64,
+    height: 64,
+    borderRadius: 22,
+    borderCurve: "continuous",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 12,
   },
-  buttonText: { fontSize: 17, fontWeight: "600", textAlign: "center" },
-  notice: { padding: 20, gap: 14, borderRadius: 16 },
-  pending: { flexDirection: "row", alignItems: "center", gap: 10 },
+  title: { fontSize: 36, fontWeight: "600", letterSpacing: -1.2 },
+  sectionTitle: { fontSize: 23, fontWeight: "600" },
+  body: { fontSize: 16, lineHeight: 24 },
+  caption: { fontSize: 14, lineHeight: 21 },
+  form: { gap: 12 },
+  label: { fontSize: 17, fontWeight: "600" },
+  input: {
+    borderWidth: 1,
+    borderRadius: 16,
+    borderCurve: "continuous",
+    padding: 18,
+    minHeight: 60,
+    fontSize: 19,
+  },
+  startButton: { marginTop: 12 },
+  card: { padding: 24, borderRadius: 24, borderCurve: "continuous", gap: 18 },
+  session: { gap: 24, paddingTop: 28 },
+  phase: {
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 24,
+  },
+  phaseText: { fontSize: 12, fontWeight: "600", letterSpacing: 1.2 },
+  smallIcon: { width: 14, height: 14 },
+  sessionName: {
+    fontSize: 28,
+    fontWeight: "500",
+    letterSpacing: -0.5,
+    textAlign: "center",
+  },
+  clock: { gap: 8, paddingVertical: 20 },
+  elapsed: {
+    fontSize: 64,
+    fontWeight: "500",
+    fontVariant: ["tabular-nums"],
+    letterSpacing: -2,
+    textAlign: "center",
+  },
+  timeLegend: { fontSize: 13, letterSpacing: 0.6, textAlign: "center" },
+  controls: { gap: 12 },
+  control: { flex: 1 },
+  goal: { borderTopWidth: 1, marginTop: 12, paddingTop: 24, gap: 6 },
+  goalTitle: { fontSize: 15, fontWeight: "600", textAlign: "center" },
+  notice: { padding: 20, gap: 14, borderRadius: 18, borderCurve: "continuous" },
+  pending: {
+    minHeight: 24,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+  },
   footer: {
-    fontSize: 14,
-    lineHeight: 21,
-    paddingHorizontal: 8,
-    paddingBottom: 16,
+    marginTop: "auto",
+    paddingTop: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
   },
+  footerIcon: { width: 18, height: 22 },
+  footerText: { flexShrink: 1, fontSize: 13, lineHeight: 20 },
 });

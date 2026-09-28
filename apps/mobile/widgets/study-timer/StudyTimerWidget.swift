@@ -8,6 +8,9 @@ struct StudyTimerWidgetBundle: WidgetBundle {
 }
 
 struct StudyTimerWidget: Widget {
+  private let accent = Color(red: 182 / 255, green: 227 / 255, blue: 195 / 255)
+  private let pausedAccent = Color(red: 255 / 255, green: 218 / 255, blue: 135 / 255)
+
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: StudyTimerAttributes.self) { context in
       VStack(alignment: .leading, spacing: 6) {
@@ -20,7 +23,7 @@ struct StudyTimerWidget: Widget {
       }
       .padding(16)
       .dynamicTypeSize(...DynamicTypeSize.large)
-      .activityBackgroundTint(.black)
+      .activityBackgroundTint(Color(red: 20 / 255, green: 27 / 255, blue: 23 / 255))
       .activitySystemActionForegroundColor(.white)
       .foregroundStyle(.white)
     } dynamicIsland: { context in
@@ -80,7 +83,7 @@ struct StudyTimerWidget: Widget {
           .multilineTextAlignment(.center)
           .frame(width: 34)
       }
-      .keylineTint(.mint)
+      .keylineTint(accent)
     }
   }
 
@@ -99,7 +102,7 @@ struct StudyTimerWidget: Widget {
       state.phase == "paused" ? "Paused" : "Studying",
       systemImage: state.phase == "paused" ? "pause.fill" : "book.closed.fill"
     )
-    .foregroundStyle(.mint)
+    .foregroundStyle(state.phase == "paused" ? pausedAccent : accent)
   }
 
   private func elapsed(_ state: StudyTimerAttributes.ContentState) -> some View {
@@ -121,10 +124,10 @@ struct StudyTimerWidget: Widget {
       if state.phase == "paused" {
         let progress = min(1, max(0, state.accumulatedMs / context.attributes.goalDurationMs))
         ZStack {
-          Circle().stroke(.mint.opacity(0.25), lineWidth: 4)
+          Circle().stroke(accent.opacity(0.25), lineWidth: 4)
           Circle()
             .trim(from: 0, to: progress)
-            .stroke(.mint, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+            .stroke(accent, style: StrokeStyle(lineWidth: 4, lineCap: .round))
             .rotationEffect(.degrees(-90))
         }
         .padding(2)
@@ -141,7 +144,7 @@ struct StudyTimerWidget: Widget {
           EmptyView()
         }
         .progressViewStyle(.circular)
-        .tint(.mint)
+        .tint(accent)
         .labelsHidden()
       }
     }
