@@ -1,0 +1,32 @@
+[
+  {
+    "at": 1790616302.3494542,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:26\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)"
+  },
+  {
+    "at": 1790616302.507863,
+    "tool": "gesture-tap",
+    "result": "{\n  \"tapped\": true,\n  \"timestampMs\": 1790616302447\n}"
+  },
+  {
+    "at": 1790616302.657452,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:27\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Resume\" id=\"timer-resume\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)"
+  },
+  {
+    "at": 1790616315.688769,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:27\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Resume\" id=\"timer-resume\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)"
+  },
+  {
+    "at": 1790616316.3219872,
+    "tool": "gesture-custom",
+    "result": "{\n  \"events\": 2\n}"
+  },
+  {
+    "at": 1790616316.496,
+    "tool": "button",
+    "result": "{\n  \"pressed\": \"power\"\n}"
+  }
+]
