@@ -107,6 +107,8 @@ Use full real-time screen recordings to measure the 1–2 second pause/resume pr
 
 ### UI stack
 
+The elapsed display adapts the two-layer, 300 ms upward digit translation from [reactnative-50-days Timer](https://github.com/hewad-mubariz/reactnative-50-days/blob/main/timer/src/components/Digit.tsx). It retains the app's count-up timestamps, typography, and controls. Reduce Motion uses immediate updates; pause and foreground reconciliation cancel or reset transitions. This animation uses the existing Reanimated installation with no new dependencies. Its local continuation branch is `codex/study-timer-animation`, above `codex/study-timer-ui-polish`.
+
 The timer uses React Native for layout and elapsed text, Expo Router for its native header, and the already-installed `@expo/ui/swift-ui` for iOS buttons. SF Symbols come through `expo-image`. The app and widget share an ivory/forest-green direction, with amber identifying paused sessions.
 
 `react-native-keyboard-controller` 1.22.4 is the only dependency added for UI polish. Its keyboard-aware scroll view reserves room for the measured form actions, bounded by the visible viewport so large text cannot push the focused input above the screen. The input still submits with the keyboard Done action. A native rebuild is required after installing this dependency.

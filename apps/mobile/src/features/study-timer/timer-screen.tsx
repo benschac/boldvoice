@@ -18,6 +18,7 @@ import {
 } from "react-native-keyboard-controller";
 
 import type { SessionSnapshot } from "./study-timer.types";
+import { RollingElapsed } from "./rolling-elapsed";
 import { TimerButton } from "./timer-button";
 import { elapsedMilliseconds, formatElapsed } from "./timer-format";
 import { timerPalettes, type TimerPalette } from "./timer-theme";
@@ -40,17 +41,11 @@ function ElapsedTime({
   }, [session, foreground]);
   const formatted = formatElapsed(elapsedMilliseconds(session, now));
   return (
-    <Text
-      selectable
-      testID="timer-elapsed"
-      accessibilityLabel={`Elapsed time ${formatted}`}
-      adjustsFontSizeToFit
-      minimumFontScale={0.45}
-      numberOfLines={1}
-      style={[styles.elapsed, { color: colors.text }]}
-    >
-      {formatted}
-    </Text>
+    <RollingElapsed
+      formatted={formatted}
+      color={colors.text}
+      running={foreground && session.phase === "running"}
+    />
   );
 }
 
@@ -490,13 +485,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   clock: { gap: 8, paddingVertical: 20 },
-  elapsed: {
-    fontSize: 64,
-    fontWeight: "500",
-    fontVariant: ["tabular-nums"],
-    letterSpacing: -2,
-    textAlign: "center",
-  },
   timeLegend: { fontSize: 13, letterSpacing: 0.6, textAlign: "center" },
   controls: { gap: 12 },
   control: { flex: 1 },
