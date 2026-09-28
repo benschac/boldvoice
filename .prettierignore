@@ -1,0 +1,9 @@
+node_modules/
+.expo/
+dist/
+.agents/
+bun.lock
+skills-lock.json
+ios/
+android/
+**/.build/
