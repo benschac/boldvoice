@@ -65,3 +65,11 @@ The reviewed build passed with zero errors and three warnings. Real JS calls ret
 Foundation tests: 30 passed including real file read/write failures, corruption and version rejection, huge timestamp rejection, crash windows, suspended concurrent commands, cleanup failure reporting, and explicit retry. The reviewer rechecked the three fixes and reported no unresolved findings. These tests are controlled-adapter evidence; the simulator observations above exercise the real module and ActivityKit. Logs: `/private/tmp/boldvoice-d1-baseline/d1-reviewed-build.log` and `d1-swift-tests.log`.
 
 D1 gates passed, with the documented minimal-trigger attempt recorded and full minimal visual acceptance deferred to D3. D2 and D3 gates remain open.
+
+## D2 observed result
+
+Passed on the same simulator using the final screen. Blank Start showed “Enter a session name.” An 81-character ASCII name was rejected by native validation and displayed “Enter a session name of 1–80 characters.” The first UI run exposed Expo exception internals; error-code mapping fixed it and the repeated real input showed the friendly text. The keyboard dismissed on submission. A double-click on Start produced one session. Pause remained at 00:00:09 across more than ten seconds, Resume continued it, and Stop returned to the new-session form. Foreground reconciliation briefly disabled controls, then replaced the stale display with current native elapsed time. Labels and identifiers were inspected through the accessibility tree; this is not a VoiceOver navigation test.
+
+Real Settings test: disabled this app's Live Activities, started Chapter 5 Review, observed unavailable while the local timer advanced, and retried while disabled without losing the session. Restored the setting, returned to the app, observed missing without automatic recreation, and tapped Retry. Status became active at 00:00:32. Lock-screen swipe dismissal was attempted but not established by these gestures; that distinct D3 check remains open.
+
+Root validation: 11 Node formatting/command tests, typecheck and lint passed. One independent D2 reviewer reported no additional findings. [D2 screen](evidence/d2-screen.png). No native code changed in D2.
