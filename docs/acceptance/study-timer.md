@@ -137,3 +137,20 @@ Fresh observations on iPhone 17 Pro / iOS 26.5 after native rebuild:
 Validation: format check, lint, typecheck, 11 Node timer tests, and 30 Foundation tests passed. Expo dependency compatibility check and generated-target verifier passed. Native generation, build, install, and launch completed serially; build reported zero errors and four linker warnings, including the existing missing Metal search path. Build log: `/private/tmp/study-timer-ui-polish/native-build.log`. One independent reviewer found the unbounded keyboard-clearance issue; the capped calculation was rechecked with no remaining source-level finding.
 
 This pass is simulator and source evidence. Physical-device testing, VoiceOver navigation, actual Reduce Motion playback, and the combined largest-text/Live-Activities-disabled case remain unrun. The previously recorded D2/D3 disabled-permission, dismissal, termination, and precise propagation timing checks were not fully replayed for this presentation-only continuation. A development-only LogBox prompt appeared after launch; its underlying message was not recovered in this pass.
+
+## Rolling timer animation
+
+Integrated the [reference Digit implementation](https://github.com/hewad-mubariz/reactnative-50-days/blob/main/timer/src/components/Digit.tsx) into the existing elapsed display. The reference App, TimerScreen, Timer, Digit, and IconButton sources were read. The integration retains the paired outgoing/incoming text layers, clipped cell, upward translation, and 300 ms timing. It adapts the reference's demo countdown and Anton styling to the native-authoritative count-up and existing system typography. No gradient screen, placeholder actions, competing navigation, packages, or native changes were added. The existing Expo Router route reaches the animation through normal Start/Resume actions.
+
+Runtime path B: existing Expo development build, iPhone 17 Pro / iOS 26.5. Metro restarted with `--dev-client --clear`; no native rebuild was needed for this TypeScript-only change. The block references Expo 52/Reanimated 3; this app continues to use its existing SDK 58/Reanimated 4 installation. There are no newly installed package versions to reconcile.
+
+Observed on the real simulator:
+
+- [Rolling digits recording](evidence/timer-animation/rolling-digits.mp4) shows outgoing digits moving upward and incoming digits entering from below, including `00:01:59` to `00:02:00`. This is an eight-second excerpt of the simulator capture, resized to 402 px wide; original `/private/tmp/timer-animation/rolling-digits.mp4` retains the full capture.
+- Pause settled at `00:02:02` and remained there through opening Settings and returning. Resume continued from that native elapsed value. The accessibility tree exposed a single `Elapsed time` element rather than duplicate outgoing/incoming digits.
+- Enabled Reduce Motion in iOS Settings, resumed, and recorded [immediate digit updates](evidence/timer-animation/reduced-motion.mp4), including `00:02:09` to `00:02:10`. Restored the original disabled preference afterward. This validates a real preference change without reloading the app, not an injected flag.
+- [Largest accessibility text](evidence/timer-animation/largest-text.png) shows the full `00:02:27` value without horizontal clipping. Restored default `large` text size. The session remains paused rather than being discarded.
+
+Format check, lint, typecheck, and all 11 existing timer command/format tests passed. One independent source reviewer found no actionable issues. Native lifecycle code is unchanged; prior Foundation/ActivityKit acceptance is not claimed as freshly replayed. Android, VoiceOver navigation, and release-build performance on a physical device remain unverified.
+
+The earlier LogBox prompt is now identified as Reanimated's native dependency-array warning. The installed keyboard-controller hooks pass dependency arrays to Reanimated, which reports that they are ignored on native. The new rolling-digit hooks do not supply those arrays. The warning remains visible in development; no dependency patch or suppression was introduced.
