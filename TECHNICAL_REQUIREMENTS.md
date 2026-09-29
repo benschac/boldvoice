@@ -34,7 +34,7 @@ The challenge leaves these open. Each is a deliberate choice the review team sho
 Product behavior:
 
 - Session names are trimmed, required, and limited to 80 Unicode characters. Show a short note that the name appears on the Lock Screen.
-- The expanded progress ring represents a fixed 25-minute focus goal. Label it accordingly, cap it at 100%, and let elapsed time continue until Stop. It is a display aid, not a countdown or auto-stop.
+- The expanded Island ring and the app's progress arc represent the same fixed 25-minute focus goal. Label it accordingly, cap it at 100%, and let elapsed time continue until Stop. It is a display aid, not a countdown or auto-stop. The app arc derives from the same elapsed calculation as its digits; it adds no timer owner or persistence.
 - Pause/Resume/Stop remain app controls. Starting another session while one exists requires stopping the first.
 - If Live Activities are disabled or a request fails, the local timer still runs with a visible "Live Activity unavailable" status and an explicit foreground retry. Do not claim the lock-screen feature succeeded.
 
