@@ -1,0 +1,311 @@
+[
+  {
+    "at": 1790615415.7964191,
+    "tool": "describe",
+    "result": "  AXGroup \"Session name\" value=\"Argent Chapter Review\" id=\"timer-name-input\"  (0.122, 0.398, 0.756, 0.057)\n  AXButton \"Start session\" id=\"timer-start\"  (0.119, 0.543, 0.761, 0.059)",
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615415.971794,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615415897
+    },
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615416.1932218,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:00\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615425.574177,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:09\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615425.739082,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615425678
+    },
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615425.908148,
+    "tool": "button",
+    "result": {
+      "pressed": "power"
+    },
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615441.752327,
+    "tool": "button",
+    "result": {
+      "pressed": "home"
+    },
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615472.097945,
+    "event": "paused termination",
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615480.6462421,
+    "tool": "button",
+    "result": {
+      "pressed": "home"
+    },
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615489.8792372,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:09\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Resume\" id=\"timer-resume\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615490.0447922,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615489985
+    },
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615490.218699,
+    "tool": "button",
+    "result": {
+      "pressed": "power"
+    },
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615556.5038772,
+    "tool": "button",
+    "result": {
+      "pressed": "home"
+    },
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615566.441063,
+    "tool": "button",
+    "result": {
+      "pressed": "home"
+    },
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615579.3390248,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:01:38\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615579.514997,
+    "event": "running termination",
+    "source": "d3-actions.jsonl"
+  },
+  {
+    "at": 1790615755.6470678,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:19\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615755.80525,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615755745
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615755.9586759,
+    "tool": "describe",
+    "result": "  AXGroup \"Session name\" value=\"Argent Chapter Review\" id=\"timer-name-input\"  (0.122, 0.398, 0.756, 0.057)\n  AXButton \"Start session\" id=\"timer-start\"  (0.119, 0.543, 0.761, 0.059)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615756.1264389,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615756067
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615756.274357,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:00\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615756.429753,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615756370
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615756.5782,
+    "tool": "describe",
+    "result": "  AXGroup \"Session name\" value=\"Argent Chapter Review\" id=\"timer-name-input\"  (0.122, 0.398, 0.756, 0.057)\n  AXButton \"Start session\" id=\"timer-start\"  (0.119, 0.543, 0.761, 0.059)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615756.73921,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615756680
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615756.8929,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:00\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615757.05229,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615756993
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615757.196458,
+    "tool": "describe",
+    "result": "  AXGroup \"Session name\" value=\"Argent Chapter Review\" id=\"timer-name-input\"  (0.122, 0.398, 0.756, 0.057)\n  AXButton \"Start session\" id=\"timer-start\"  (0.119, 0.543, 0.761, 0.059)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615757.3520682,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615757293
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615757.534056,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:00\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615757.6982741,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615757641
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615757.842505,
+    "tool": "describe",
+    "result": "  AXGroup \"Session name\" value=\"Argent Chapter Review\" id=\"timer-name-input\"  (0.122, 0.398, 0.756, 0.057)\n  AXButton \"Start session\" id=\"timer-start\"  (0.119, 0.543, 0.761, 0.059)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615757.998132,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615757938
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615758.149344,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:00\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615758.307301,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615758249
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615758.448421,
+    "tool": "describe",
+    "result": "  AXGroup \"Session name\" value=\"Argent Chapter Review\" id=\"timer-name-input\"  (0.122, 0.398, 0.756, 0.057)\n  AXButton \"Start session\" id=\"timer-start\"  (0.119, 0.543, 0.761, 0.059)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615758.60545,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615758546
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615758.756853,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:00\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Pause\" id=\"timer-pause\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615758.917845,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615758858
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615759.065564,
+    "tool": "describe",
+    "result": "  AXStaticText \"Elapsed time 00:00:00\"  (0.119, 0.398, 0.761, 0.066)\n  AXButton \"Resume\" id=\"timer-resume\"  (0.119, 0.537, 0.761, 0.059)\n  AXButton \"Stop session\" id=\"timer-stop\"  (0.119, 0.610, 0.761, 0.059)\n  AXStaticText \"Live Activity active\"  (0.119, 0.690, 0.761, 0.023)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615759.226788,
+    "tool": "gesture-tap",
+    "result": {
+      "tapped": true,
+      "timestampMs": 1790615759167
+    },
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615759.3707561,
+    "tool": "describe",
+    "result": "  AXGroup \"Session name\" value=\"Argent Chapter Review\" id=\"timer-name-input\"  (0.122, 0.398, 0.756, 0.057)\n  AXButton \"Start session\" id=\"timer-start\"  (0.119, 0.543, 0.761, 0.059)",
+    "source": "d3-rapid-actions.jsonl"
+  },
+  {
+    "at": 1790615759.527016,
+    "tool": "button",
+    "result": {
+      "pressed": "home"
+    },
+    "source": "d3-rapid-actions.jsonl"
+  }
+]
